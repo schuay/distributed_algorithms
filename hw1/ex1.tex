@@ -1,0 +1,103 @@
+\begin{Exc}{(A2.2.v0, 5 points):}
+Analyze the time complexity of the convergecast algorithm
+(maximum-finding) of Section 2.2 of the textbook when (a) communication is
+synchronous and (b) communication is asynchronous.
+\end{Exc}
+\begin{Exc}{(A2.3.v0, 9 points):}
+Consider a synchronous distributed system of $n$ processors
+$\Pi=\{p_0,\dots,p_{n-1}\}$, connected via a tree of depth $D\geq0$
+rooted at processor $p_0$. For simplicity, assume that there is
+one additional processor $p_{sink}$ above $p_0$, connected via a single link
+$(p_0,p_{sink})$, which just consumes every message sent by $p_0$.
+Assume that every processor $p_i\in\Pi$ has
+some data $D_i^k$ available at the beginning of every round $k\geq 1$;
+for simplicity, assume that $D_i^k$ is already available in the
+computing step terminating the previous round $k-1$ (resp.\
+in the initial configuration for $k=1$).
+
+Solve the following tasks:
+\begin{enumerate}
+\item[(1)] Devise a distributed algorithm, which, for every $k\geq 1$,
+lets $p_0$ send a single message $M^k$ containing the set
+$\{D_i^k| i\in\Pi\}$ to $p_{sink}$ in
+round $k+X$, for some fixed $X$ (that may depend on $D$, though).
+If needed, you may assume that every processor $p_i$ knows its
+height $h_i$ (= its level measured from the bottom leaves;
+the height of a chain of $D$ processors is hence $D-1$, for example) in
+the tree. Provide a sound proof that it indeed achieves its
+goal.
+
+\item[(2)] Assuming that every $D_i^k$ requires $B$ bits,
+give the total bit
+complexity (taken over all messages containing data relevant for
+$M^k$) for generating $M^k$, and the local memory requirement
+(without $\inbuf_i[*]$, $\outbuf_i[*]$ and round number) for $p_i$.
+\end{enumerate}
+\end{Exc}
+\begin{Exc}{(L.8.8.v0, 3 points):}
+Characterize the (unique!) set of event traces $P$ that is both
+a safety and a liveness property.
+
+\end{Exc}
+\begin{Exc}{(W2.1.v0, 9 points):}
+Consider a distributed system of $n$ processors, in a
+connected (but not neccesarily fully connected) network $G$.
+Assume that every $p_i$ has
+an array $\neighbors_i[*]$ that gives its neighbor processors,
+sorted according to decreasing communication link quality.
+For example, in a wireless setting, it could be sorted according
+to increasing Euclidean distance between $p_i$ and its neighbors.
+Let this quality of the communication link $(p_i,p_j)$ be
+denoted as $|(p_i,p_j)|=|(p_j,p_i)|$, which we assume to be (slightly)
+different from any other $|(p_x,p_y)|$ for simplicity, and let
+the corresponding order $<_i$
+of the neighbors of $p_i$ be defined as
+$p_j=\neighbors_i[k] <_i p_\ell=\neighbors_i[m]$ iff $k<m$ (which
+implies $|(p_i,p_j)|<|(p_i,p_\ell)|$).
+
+Consider the following asynchronous distributed algorithm, which constructs
+a less dense communication topology $T$ (not necessarily a spanning
+tree like our Algorithm~2, but typically a fairly sparse graph):
+
+\begin{code}%
+\vspace*{-1cm}%
+\emn{Code for processor $p_i$, $0\leq i \leq n-1$, with given
+array $\neighbors_i[*]$}\NL
+\emn{$T$ will consist of the edges $(p_i,p_j)$ with $p_j\in N_i$.}\NL
+VAR $N_i := \emptyset$ // neighbors to be included\NL
+\> $\overline{N}_i := \emptyset$ // neighbors to be excluded\\
+\NL
+for $k=1$ to $|\neighbors_i[*]|$ do // go over all neighbors\NL
+\> $j := \neighbors_i[k]$\NL
+\> send message "?" to $p_j$ // ask for $p_j$'s neighbors array\NL
+\> receive array $\neighbors_j[*]$ from $p_j$\NL
+\> if $\exists p_\ell \in N_i \cup \overline{N}_i$ with $p_\ell <_j p_i$\NL
+\>\> $\overline{N}_i := \overline{N}_i \cup \{p_j\}$ // exclude $p_j$\NL
+\> else\NL
+\>\> $N_i := N_i \cup \{p_j\}$ // include $p_j$\\
+\NL
+On receiving "?" from $p_j$:\NL
+\> send message containing $\neighbors_i[*]$ to $p_j$
+\end{code}
+
+Solve the following tasks:
+\begin{enumerate}
+\item[(1)] Provide the complete translation of this algorithm into the corresponding
+transition relation + initial state. Recall that sequential computations can
+usually be packed into in a single state transition.
+
+\item[(2)] Prove that the algorithm always constructs $T$ consistently, in
+the sense that $p_i$ includes $p_j$ in $N_i$ iff $p_j$ includes $p_i$
+in $N_j$.
+
+\item[(3)] For arbitrary (but different) choices of link quality
+$|(p_i,p_j)|$, prove that $T$ is connected and that its shortest
+cycle has length 4.
+\footnote{Whereas this does not imply that $T$ is always sparse,
+one could e.g.\ show that the maximum degree of every processor is at
+most 6 when the link quality $|(p_i,p_j)|$ is the processors' Euclidean
+distance and $G$ is such that if some link $(p_i,p_j)$ is
+in $G$, then every shorter link $(p_i,p_\ell)$ with $|(p_i,p_\ell)|
+\leq |(p_i,p_j)|$ is also in $G$.}
+\end{enumerate}
+\end{Exc}
