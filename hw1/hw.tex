@@ -1,5 +1,6 @@
 \documentclass[12pt,a4paper]{article}
 
+\usepackage{comment}
 \usepackage{graphicx}
 \usepackage{ifthen}
 \usepackage{epsfig}
@@ -21,15 +22,16 @@
 %\newconstruct{\PRED}{\textbf{predicate}}{}{\ENDPRED}{\textbf{end on}}
 %\newconstruct{\FUNC}{\textbf{function}}{}{\ENDFUNC}{\textbf{end on}}
 
-
 %
 % Generic stuff for inclusion exercise file -- do not change
 %
 \newtheorem{exc}{Exercise}
 \newenvironment{Exc}[1]{\begin{exc}{\normalfont #1}}{\end{exc}}
 
-\newcommand{\homework}{\homeworknumber\ (Ch. \homeworkchapter)}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
 
+\newcommand{\homework}{\homeworknumber\ (Ch. \homeworkchapter)}
 
 % Change those definitions for the different homeworks:
 \newcommand{\homeworknumber}{1}

@@ -3,6 +3,91 @@ Analyze the time complexity of the convergecast algorithm
 (maximum-finding) of Section 2.2 of the textbook when (a) communication is
 synchronous and (b) communication is asynchronous.
 \end{Exc}
+
+\begin{comment}
+Hint: For the synchronous case, prove that during round t + 1, a processor at
+height t sends a message to its parent. For the asynchronous case, prove that
+by time t, a processor at height t has sent a message to its parent.
+\end{comment}
+
+\newcommand{\prnt}[1]{\text{parent}(#1)}
+\newcommand{\dpth}[1]{\text{depth}(#1)}
+
+First, some notation: in this exercise, we consider a distributed system of $n$
+processors $\Pi=\{p_0,\dots,p_{n-1}\}$ together with a given spanning tree of depth
+$d$ rooted at processor $p_r$. The function
+$\text{parent}: \Pi \rightarrow \Pi \cup \{ \text{null} \}$ returns the parent node
+within the spanning tree (or null for $p_r$), while each node's depth is given by
+$\text{depth}: \Pi \rightarrow \mathbb{N}$.
+
+\begin{lemma} \label{lemma:1sync}
+In a synchronous distributed system with a given rooted spanning tree executing the convergecast
+algorithm, every processor at depth $t$ sends a message to its parent during round $t + 1$.
+\end{lemma}
+
+\begin{proof}
+By induction. This lemma holds for $t = 0$ by the description of the algorithm,
+since all leaf nodes $x$ send a message to $\prnt{x}$.
+
+Assume the lemma holds for $t \leq n$, and consider an arbitrary node $x$ at depth
+$n + 1$. By the definition of the depth function, all child nodes of $x$ must be at
+a depth $\leq n$, and by the inductive hypothesis must have sent a message to
+$x$ in round $n + 1$ or earlier.
+
+Since this is a synchronous system, these will be available
+to $x$ at the latest in round $n + 2$. By the definition of the
+convergecast algorithm it then computes the maximum over all received values and
+sends the resulting value to $\prnt{x}$ in round $n + 2$.
+\end{proof}
+
+\begin{theorem}
+In a synchronous distributed system with a given rooted spanning tree of depth $d$, the time
+complexity of the convergecast algorithm is $d + 1$.
+\end{theorem}
+
+\begin{proof}
+Convergecast terminates once $p_r$ has received a message from all of its children.
+$\dpth{p_r} = d$ implies that the depth of all child nodes of $p_r$ must be
+$\leq d - 1$, with equality holding for at least one child. By lemma \ref{lemma:1sync},
+every child must have sent a message to $p_r$ at the latest by round $d$. In round
+$d + 1$, $p_r$ has received a message from all child nodes and the algorithm terminates.
+\end{proof}
+
+\begin{lemma} \label{lemma:1async}
+In an asynchronous distributed system with a given rooted spanning tree executing the convergecast
+algorithm, every processor at depth $t$ sends a message to its parent by time $t$.
+\end{lemma}
+
+\begin{proof}
+By induction. This lemma holds for $t = 0$ by the description of the algorithm,
+since all leaf nodes $x$ send a message to $\prnt{x}$.
+
+Assume the lemma holds for $t \leq n$, and consider an arbitrary node $x$ at depth
+$n + 1$. By the definition of the depth function, all child nodes of $x$ must be at
+a depth $\leq n$, and by the inductive hypothesis must have sent a message to
+$x$ at time $n$ or earlier. 
+The maximal message delay is normalized, therefore all messages sent at time $n$
+must be processed by time $n + 1$.
+
+This implies that $x$ must have received
+a message from all children at time $n + 1$. By the definition of the
+convergecast algorithm it then computes the maximum over all received values and
+sends the resulting value to $\prnt{x}$ at time $n + 1$.
+\end{proof}
+
+\begin{theorem}
+In an asynchronous distributed system with a given rooted spanning tree of depth $d$, the time
+complexity of the convergecast algorithm is $d + 1$.
+\end{theorem}
+
+\begin{proof}
+Convergecast terminates once $p_r$ has received a message from all of its children.
+$\dpth{p_r} = d$ implies that the depth of all child nodes of $p_r$ must be
+$\leq d - 1$, with equality holding for at least one child. By lemma \ref{lemma:1async},
+every child must have sent a message to $p_r$ at the latest by time $d - 1$. At time
+$d$, $p_r$ has received a message from all child nodes and the algorithm terminates.
+\end{proof}
+
 \begin{Exc}{(A2.3.v0, 9 points):}
 Consider a synchronous distributed system of $n$ processors
 $\Pi=\{p_0,\dots,p_{n-1}\}$, connected via a tree of depth $D\geq0$
