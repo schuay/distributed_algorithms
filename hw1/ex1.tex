@@ -88,6 +88,8 @@ every child must have sent a message to $p_r$ at the latest by time $d - 1$. At 
 $d$, $p_r$ has received a message from all child nodes and the algorithm terminates.
 \end{proof}
 
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(A2.3.v0, 9 points):}
 Consider a synchronous distributed system of $n$ processors
 $\Pi=\{p_0,\dots,p_{n-1}\}$, connected via a tree of depth $D\geq0$
@@ -119,11 +121,16 @@ $M^k$) for generating $M^k$, and the local memory requirement
 (without $\inbuf_i[*]$, $\outbuf_i[*]$ and round number) for $p_i$.
 \end{enumerate}
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(L.8.8.v0, 3 points):}
 Characterize the (unique!) set of event traces $P$ that is both
 a safety and a liveness property.
-
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(W2.1.v0, 9 points):}
 Consider a distributed system of $n$ processors, in a
 connected (but not neccesarily fully connected) network $G$.
