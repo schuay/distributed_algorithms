@@ -122,6 +122,43 @@ $M^k$) for generating $M^k$, and the local memory requirement
 \end{enumerate}
 \end{Exc}
 
+\begin{algorithm}
+\caption{Tree Pipeline} \label{alg:tpipe}
+\begin{algorithmic}[1]
+\State \textcolor{Gray}{Code for processor $p_i, 0 \leq i \leq n - 1$}
+\State Initially, $h(p_i)$ stores $p_i$'s height, and $msgs = \{ D_i^1, D_i^2, \ldots \}$
+\For{each round $t$}
+    \State $msgs \gets msgs \cup \text{the set of all received messages}$
+
+    \If{$k = t - h(p_i) > 0$}
+        \State Remove all $D_*^k$ from $msgs$ and send them to parent
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Essentially, each node waits until it has all $D_*^k$ messages and
+then forwards them to its parent, using $msgs$ as temporary storage.
+
+\begin{lemma} \label{lem:tpipe}
+In round $k + D$, the root node $p_0$ of a tree of diameter $D$
+stores the set of all $D_*^k$ messages in its $msgs$ variable.
+\end{lemma}
+
+\begin{proof}
+Induction on the diameter $D$.
+
+The base case is a tree with $D = 0$ consisting of a single node $p_0$. Since $msgs$
+is initialized to contain the set of all $D_*^*$, and messages $D_*^k$ are only removed in the
+corresponding round $k$,
+
+We now assume that theorem \ref{thm:tpipe} holds for all diameters $\leq D - 1$,
+and show that the theorem follows for diameter $D$. The root of a tree with diameter $D$
+can be interpreted as $p_{sink}$ of all subtrees rooted at its child nodes. Each of these subtrees
+is of diameter $\leq D - 1$, and by the induction hypothesis it follows that $p_0$
+receives all $D_*^k$ messages of all subtrees at the latest in round $k + D$.
+\end{proof}
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(L.8.8.v0, 3 points):}
