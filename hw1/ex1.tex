@@ -243,3 +243,47 @@ in $G$, then every shorter link $(p_i,p_\ell)$ with $|(p_i,p_\ell)|
 \leq |(p_i,p_j)|$ is also in $G$.}
 \end{enumerate}
 \end{Exc}
+
+The state machine description of the given algorithm is as follows:
+
+Variables $\in L_i$ of processor $p_i$:
+\begin{itemize}
+\item $\text{neighbors}_i[\cdot], N_i, \overline{N}_i$: arrays of nodes
+\end{itemize}
+
+Initial state:
+\begin{itemize}
+\item $\text{neighbors}_i[\cdot] = $ a list of all neighbors of $p_i$, sorted by their
+      link quality in decreasing order
+\item $N_i, \overline{N}_i = \emptyset$
+\end{itemize}
+
+Elementary transitions for each $p_i$:
+\begin{itemize}
+\item \emph{Transition 1.j}. $\forall q_i \in Q_i: \text{``?''} \in \text{inbuf}_i[j]$, then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $\text{outbuf}_i[j] = \text{outbuf}_i[j] \cup \text{neighbors}_i[\cdot]$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{``?''}$
+      \end{itemize}
+\item \emph{Transition 2.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$,
+      and $\exists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$
+      then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $\overline{N}_i = \overline{N}_i \cup \{ p_j \}$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \end{itemize}
+\item \emph{Transition 3.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$,
+      and $\nexists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$
+      then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $N_i = N_i \cup \{ p_j \}$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \end{itemize}
+\end{itemize}
+
+The set of compound transitions is formed by taking the transitive closure over all elementary
+transitions while respecting lexicographic order on the transition labels (i.e. Transition $3.2$
+must occur before $3.4$, and $2.5$ before $3.1$).
