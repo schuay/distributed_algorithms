@@ -259,6 +259,7 @@ Initial state:
 \end{itemize}
 
 Elementary transitions for each $p_i$:
+% TODO: Incorrect. Order of processed neighbors matters!
 \begin{itemize}
 \item \emph{Transition 1.j}. $\forall q_i \in Q_i: \text{``?''} \in \text{inbuf}_i[j]$, then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
@@ -287,3 +288,26 @@ Elementary transitions for each $p_i$:
 The set of compound transitions is formed by taking the transitive closure over all elementary
 transitions while respecting lexicographic order on the transition labels (i.e. Transition $3.2$
 must occur before $3.4$, and $2.5$ before $3.1$).
+
+\begin{theorem}
+The algorithm always constructs $T$ consistently, i.e. $\forall i, j$:
+$p_i$ includes $p_j$ in $N_i$ iff $p_j$ includes $p_i$ in $N_j$.
+\end{theorem}
+
+\begin{proof}
+We begin with the initial observations that the mutable local state consisting of $N_i$ and
+$\overline{N}_i$ do not influence $p_j, i \neq j$; that elements are never removed from the sets
+$N_i, \overline{N}_i$; and that all neighbors are eventually in
+$N_i \cup \overline{N}_i$.
+
+Let $E = C^0, \phi^1, C^1, \ldots$ be an arbitrary execution, and let $p_i, p_j$ be neighbors
+in the network $G$. Without loss of generality, let $p_i$ add $p_j$ to $N_i \cup \overline{N}_i$
+in $E$ before $p_j$ adds $p_i$ to $N_j \cup \overline{N}_j$. We now prove the theorem by
+showing both $p_j \in N_i \rightarrow p_i \in N_j$ and $p_i \in N_j \rightarrow p_j \in N_i$.
+
+Proof of $p_j \in N_i \rightarrow p_i \in N_j$: Let $(C_{j-1}, \phi_j, C_j)$ be the step which processes
+the $\text{neighbors}_i[\cdot]$ message at $p_j$, and assume that $p_j \in N_i$ in $C_{j-1}$.
+Let $(C_{i-1}, \phi_i, C_i)$ be the step in which $p_i$ has added $p_j to N_i$.
+
+\end{proof}
+
