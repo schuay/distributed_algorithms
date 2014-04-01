@@ -369,5 +369,24 @@ The shortest cycle in $T$ has length $4$.
 \end{theorem}
 
 \begin{proof}
-% TODO
+Going by the definition of cycle length as the number of distinct edges in a
+cycle, lengths $< 1$ are impossible.
+
+A cycle of length 1 is theoretically possible unless we require $G$ to be
+without loops. So let us assume just that --- therefore no cycles of length
+1 can exist since the algorithm does not add new edges.
+
+A cycle of length 2 can only exist in a graph with multi-edges. 
+Since in this problem, edges are defined by pairs of processors $(p_i, p_j)$,
+it is impossible to specify more than one edge between a pair of processors.
+Therefore, $T$ has no cycle of length 2.
+
+We now consider cycles of length 3. We begin with a set of 3 (fully connected)
+arbitrary processors
+$p_i, p_j, p_k$, and show that it is impossible to construct a cycle between them.
+W.l.o.g., let $p_i$ add $e_{ij}$ and $e_{ik}$ to $N_i$, and $e_{ij} <_i e_{ik}$.
+By theorem \ref{thm:tconsistent} it follows that $e_{ij} \in N_j$ and $e_{ik}
+\in N_k$. Note that $e_{ik} <_k e_{jk}$, otherwise $e_{ik}$ could not be added
+to $N_i$. But then, $e_{jk}$ must be added to $\overline{N}_k$, since
+by transitivity $e_{ij} <j e_{jk}$.
 \end{proof}
