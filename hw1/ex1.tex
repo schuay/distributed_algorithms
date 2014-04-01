@@ -125,41 +125,73 @@ $M^k$) for generating $M^k$, and the local memory requirement
 \begin{algorithm}
 \caption{Tree Pipeline} \label{alg:tpipe}
 \begin{algorithmic}[1]
-\State \textcolor{Gray}{Code for processor $p_i, 0 \leq i \leq n - 1$}
-\State Initially, $h(p_i)$ stores $p_i$'s height, and $msgs = \{ D_i^1, D_i^2, \ldots \}$
+\Statex Code for processor $p_i, 0 \leq i \leq n - 1$
+\Statex Initially, $h_i = i$'s height, $\text{parent}_i = i$'s parent,
+       and msgs$_i = \{ D_i^1, D_i^2, \ldots \}$
 \For{each round $t$}
-    \State $msgs \gets msgs \cup \text{the set of all received messages}$
+    \State $\text{msgs}_i \gets \text{msgs}_i \cup \text{the set of all received messages}$
 
-    \If{$k = t - h(p_i) > 0$}
-        \State Remove all $D_*^k$ from $msgs$ and send them to parent
+    \If{$k = t - h(p_i) > 0$} \label{line:if}
+        \State Remove all $D_*^k$ from $\text{msgs}_i$ and send them to parent \label{line:send}
     \EndIf
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 
 Essentially, each node waits until it has all $D_*^k$ messages and
-then forwards them to its parent, using $msgs$ as temporary storage.
+then forwards them to its parent, using $\text{msgs}_i$ as temporary storage.
 
 \begin{lemma} \label{lem:tpipe}
-In round $k + D$, the root node $p_0$ of a tree of diameter $D$
-stores the set of all $D_*^k$ messages in its $msgs$ variable.
+At the beginning of round $k + D$, the root node $p_0$ of a tree of diameter $D$
+stores the set of all $D_*^k$ messages in $\text{msgs}_i \cup \text{inbuf}_i[\cdot]$.
 \end{lemma}
 
 \begin{proof}
 Induction on the diameter $D$.
 
-The base case is a tree with $D = 0$ consisting of a single node $p_0$. Since $msgs$
-is initialized to contain the set of all $D_*^*$, and messages $D_*^k$ are only removed in the
-corresponding round $k$,
+The base case is a tree with $D = 0$. Since the tree consists only of a single node $p_0$,
+$\text{msgs}_0$ is initialized to contain the set of all $D_0^*$, 
+and messages $D_*^k$ are only removed in the corresponding round $k + D = k$, 
+the complete set of $D_*^k$ messages is contained in 
+$\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$ at the beginning of round $k$.
 
-We now assume that theorem \ref{thm:tpipe} holds for all diameters $\leq D - 1$,
-and show that the theorem follows for diameter $D$. The root of a tree with diameter $D$
-can be interpreted as $p_{sink}$ of all subtrees rooted at its child nodes. Each of these subtrees
-is of diameter $\leq D - 1$, and by the induction hypothesis it follows that $p_0$
-receives all $D_*^k$ messages of all subtrees at the latest in round $k + D$.
+We now assume that at the beginning of round $k + D'$, the root node $p_0$ of a 
+tree of diameter $D'$ stores the set of all $D_*^k$ messages in 
+$\text{msgs}_i \cup \text{inbuf}_i[\cdot]$ for all diameters $D' \leq D - 1$.
+Consider a tree $T$ of diameter $D$ and all subtrees $T'_i$ rooted at
+the child nodes of $T$'s root node. It follows for every $T'_i$:
+
+\begin{itemize}
+\item The diameter of $T'_i$ is $h_i \leq D - 1$.
+\item By the induction hypothesis, in round $k + h_i$ the root node stores
+      the complete set of $D_*^k$.
+\item Inspecting the algorithm, we see in lines \ref{line:if} and \ref{line:send}
+      that all $D_*^k$ are sent to the root's parent in round $k + h_i$.
+\item These messages arrive at the subtree's root's parent in root $k + h_i + 1$.
+\end{itemize}
+
+Because $\forall i: h_i \leq D - 1$, they arrive at $p_0$ at 
+$\max_i k + h_i + 1 \leq k + D$. Since messages are stored in $\text{msgs}_0$
+upon arrival, and $D_*^k$ messages are removed only in round $k + D$,
+$p_0$ must contain all $D_*^k$ in $\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$.
 \end{proof}
 
-% TODO: Finish this.
+\begin{theorem}
+$p_{sink}$ receives the set of all $D_*^k$ messages in round $k + D + 1$.
+\end{theorem}
+
+\begin{proof}
+By lemma \ref{lem:tpipe}, $p_0$ has all $D_*^k$ messages at the beginning
+of round $k + D$. By the code, these are sent to its parent $p_{sink}$ in the same
+round, and arrive in round $k + D + 1$.
+\end{proof}
+
+Each message $D_i^k$ follows the unique path from $p_i$ to the root node $p_0$.
+The longest such path is of length $D$. Therefore, the bit complexity is $O(DB)$.
+
+A node $p_i$ at height $h_i$ stores, in the worst case, the messages of itself and
+all its descendants for up to $h_i + 1$ rounds. A local space complexity of
+$O(nh_i)$ follows.
 
 % ------------------------------------------------------------------------------
 
