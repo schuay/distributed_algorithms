@@ -295,22 +295,48 @@ $p_i$ includes $p_j$ in $N_i$ iff $p_j$ includes $p_i$ in $N_j$.
 \end{theorem}
 
 \begin{proof}
-We begin with the initial observations that the mutable local state consisting of $N_i$ and
-$\overline{N}_i$ do not influence $p_j, i \neq j$; that elements are never removed from the sets
-$N_i, \overline{N}_i$; and that all neighbors are eventually in
-$N_i \cup \overline{N}_i$.
+We begin with initial observations:
+
+\begin{enumerate}
+\item The mutable local state consisting of $N_i$ and
+$\overline{N}_i$ does not influence $p_j, i \neq j$.
+\item Elements are never removed from the sets $N_i, \overline{N}_i$.
+\item The sets $N_i, \overline{N}_i$ are disjunct.
+\item All neighbors $p_j <_i p_k$ enter $N_i \cup \overline{N}_i$ before $p_k$.
+\item The $<_i$ relation is static.
+\end{enumerate}
 
 Let $E = C^0, \phi^1, C^1, \ldots$ be an arbitrary execution, and let $p_i, p_j$ be neighbors
 in the network $G$. Without loss of generality, let $p_i$ add $p_j$ to $N_i \cup \overline{N}_i$
-in $E$ before $p_j$ adds $p_i$ to $N_j \cup \overline{N}_j$. We now prove the theorem by
+in $E$ before $p_j$ adds $p_i$ to $N_j \cup \overline{N}_j$. 
+Let $(C_{j-1}, \phi_j, C_j)$ be the step which processes
+the $\text{neighbors}_i[\cdot]$ message at $p_j$, and let $(C_{i-1}, \phi_i, C_i)$
+be the step in which the $\text{neighbors}_j[\cdot]$ message is processed at at $p_i$.
+We now prove the theorem by
 showing both $p_j \in N_i \rightarrow p_i \in N_j$ and $p_i \in N_j \rightarrow p_j \in N_i$.
 
-Proof of $p_j \in N_i \rightarrow p_i \in N_j$: Let $(C_{j-1}, \phi_j, C_j)$ be the step which processes
-the $\text{neighbors}_i[\cdot]$ message at $p_j$, and assume that $p_j \in N_i$ in $C_{j-1}$.
-Let $(C_{i-1}, \phi_i, C_i)$ be the step in which $p_i$ has added $p_j to N_i$.
+Proof of $p_j \in N_i \rightarrow p_i \in N_j$: 
+We examine $\phi_j$ under the assumption that $p_j \in N_i$ in $C_i$.
+By contradiction, suppose that $\exists p_\ell \in N_j \cup \overline{N}_j: 
+p_\ell <_i p_j$ (which would force $\phi_j$ to exclude $p_i$). 
 
-% TODO: Finish this
+\begin{align}
+&\exists p_\ell \in N_j \cup \overline{N}_j: p_\ell <_i p_j \text{ in } C_{j-1} & \\
+&p_\ell <_j p_i & \text{1, since } p_\ell \in N_j \cup \overline{N}_j \\
+&p_\ell \in N_i \cup \overline{N}_i \text{ in } C_{i-1} & \text{1, since } p_\ell <_i p_j \\
+&p_\ell \in N_i \cup \overline{N}_i: p_\ell <_j p_i \text{ in } C_{i-1} & \text{2, 3} \\
+&p_j \in \overline{N}_i \text{ in } C_i & \text{4, algorithm line 10} \\
+&p_j \not\in N_i \text{ in } C_i & \text{5, mutual exclusion of } N_i, \overline{N}_i
+\end{align}
+This contradicts the assumption, and therefore $\phi_j$ must add $p_i$ to $N_j$.
 
+Proof of $p_i \in N_j \rightarrow p_j \in N_i$: Assume that $\phi_j$ adds
+$p_i$ to $N_j$ and therefore $\nexists p_\ell \in N_j \cup \overline{N}_j: 
+p_\ell <_i p_j$ in $C_{j-1}$. Suppose that $\phi_i$ excluded $p_j$, implying
+$\exists p_\ell \in N_i \cup \overline{N}_i: p_\ell <_j p_i \text{ in } C_{i-1}$.
+The contradiction follows by the same reasoning as in the other direction.
+
+Hence, eventually $\forall i,j: p_i \in N_j \leftrightarrow p_j \in N_i$.
 \end{proof}
 
 \begin{theorem}
@@ -336,4 +362,12 @@ is included in line 12 of the algorithm.
 By theorem \ref{thm:tconsistent}, $p_j$ must also include $p_i$ at some point
 in the execution. We have therefore reached a contradiction since it has been
 shown that it is impossible for $T$ to consist of more than one component.
+\end{proof}
+
+\begin{theorem}
+The shortest cycle in $T$ has length $4$.
+\end{theorem}
+
+\begin{proof}
+% TODO
 \end{proof}
