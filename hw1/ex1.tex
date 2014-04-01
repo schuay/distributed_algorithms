@@ -253,37 +253,47 @@ Variables $\in L_i$ of processor $p_i$:
 \item $\text{neighbors}_i[\cdot], N_i, \overline{N}_i$: arrays of nodes
 \end{itemize}
 
-Initial state:
+Initial state for all $i$:
 \begin{itemize}
 \item $\text{neighbors}_i[\cdot] = $ a list of all neighbors of $p_i$, sorted by their
       link quality in decreasing order
 \item $N_i, \overline{N}_i = \emptyset$
+\item $\text{inbuf}_i[\cdot] = \emptyset$
+\item $\text{outbuf}_i[\cdot] = \emptyset$, except $\text{outbuf}_i[\text{neighbors}_i[1]] = \text{``?''}$
 \end{itemize}
 
 Elementary transitions for each $p_i$:
-% TODO: Incorrect. Order of processed neighbors matters!
 \begin{itemize}
-\item \emph{Transition 1.j}. $\forall q_i \in Q_i: \text{``?''} \in \text{inbuf}_i[j]$, then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+\item \emph{Transition 1.j}. $\forall q_i \in Q_i: \text{``?''} \in \text{inbuf}_i[j]$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $\text{outbuf}_i[j] = \text{outbuf}_i[j] \cup \text{neighbors}_i[\cdot]$
       \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{``?''}$
       \end{itemize}
-\item \emph{Transition 2.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$,
-      and $\exists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$
-      then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+\item \emph{Transition 2.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$
+      such that $j = \text{neighbors}_i[k]$,
+      and $\exists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $\overline{N}_i = \overline{N}_i \cup \{ p_j \}$
       \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
+             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{``?''}$. (Sending
+             to a nonexistent neighbor has no effect).
       \end{itemize}
-\item \emph{Transition 3.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$,
-      and $\nexists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$
-      then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+\item \emph{Transition 3.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$
+      such that $j = \text{neighbors}_i[k]$,
+      and $\nexists p_{\ell} \in N_i \cup \overline{N}_i: p_{\ell} <_j p_i$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $N_i = N_i \cup \{ p_j \}$
       \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
+             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{``?''}$. (Sending
+             to a nonexistent neighbor has no effect).
       \end{itemize}
 \end{itemize}
 
