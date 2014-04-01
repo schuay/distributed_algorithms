@@ -289,7 +289,7 @@ The set of compound transitions is formed by taking the transitive closure over 
 transitions while respecting lexicographic order on the transition labels (i.e. Transition $3.2$
 must occur before $3.4$, and $2.5$ before $3.1$).
 
-\begin{theorem}
+\begin{theorem} \label{thm:tconsistent}
 The algorithm always constructs $T$ consistently, i.e. $\forall i, j$:
 $p_i$ includes $p_j$ in $N_i$ iff $p_j$ includes $p_i$ in $N_j$.
 \end{theorem}
@@ -309,5 +309,31 @@ Proof of $p_j \in N_i \rightarrow p_i \in N_j$: Let $(C_{j-1}, \phi_j, C_j)$ be 
 the $\text{neighbors}_i[\cdot]$ message at $p_j$, and assume that $p_j \in N_i$ in $C_{j-1}$.
 Let $(C_{i-1}, \phi_i, C_i)$ be the step in which $p_i$ has added $p_j to N_i$.
 
+% TODO: Finish this
+
 \end{proof}
 
+\begin{theorem}
+$T$ is connected.
+\end{theorem}
+
+\begin{proof}
+By way of contradiction, assume that $T$ is not connected, i.e. it consists of 2
+or more components. Fix any two such components $A, B$, and let $E$ be the list
+of all edges between $A$ and $B$ in the original graph $G$. In particular, let
+$e_0 = (p_i, p_j), p_i \in A, p_j \in B$ be the edge with minimal costs in $E$.
+We now show that in every 
+possible execution, $e_0$ must be placed included in $T$.
+
+Consider the step $(C_{i-1}, \phi_i, C_i)$ in which $p_i$ processes the 
+$\text{neighbors}_j[\cdot]$ message. Since $e_0$ has minimal cost over all edges
+between $A$ and $B$ and edges are processed in order of increasing costs,
+$N_i \cup \overline{N}_i$ does not contain any edges
+leading to $B$ in $C_{i-1}$. Therefore, it is impossible for any edge in 
+$N_i \cup \overline{N}_i$ to be closer to $p_j$ than $p_i$. Thus $p_j$
+is included in line 12 of the algorithm.
+
+By theorem \ref{thm:tconsistent}, $p_j$ must also include $p_i$ at some point
+in the execution. We have therefore reached a contradiction since it has been
+shown that it is impossible for $T$ to consist of more than one component.
+\end{proof}
