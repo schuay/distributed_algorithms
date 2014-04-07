@@ -1,0 +1,64 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{comment}
+\usepackage{ifthen}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{algorithm,algorithmicx,algpseudocode}
+\usepackage{enumitem}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\setlist{noitemsep}
+
+%\usepackage{graphicx}
+%\usepackage{epsfig}
+%\usepackage{latexsym}
+
+%\usepackage{pseudocode}
+%\def\pfi{\relax}
+
+%\usepackage{algorithm}
+%\usepackage[noend]{algorithmic}
+%\usepackage{algorithmicext}
+
+%\newconstruct{\ON}{\textbf{on}}{\textbf{do}}{\ENDON}{\textbf{end on}}
+%\newconstruct{\UPON}{\textbf{upon}}{\textbf{do}}{\ENDUPON}{\textbf{end upon}}
+
+%\renewcommand{\algorithmiccomment}[1]{ /\!/ #1}
+%\newconstruct{\PROC}{\textbf{procedure}}{}{\ENDPROC}{\textbf{end on}}
+%\newconstruct{\PRED}{\textbf{predicate}}{}{\ENDPRED}{\textbf{end on}}
+%\newconstruct{\FUNC}{\textbf{function}}{}{\ENDFUNC}{\textbf{end on}}
+
+%
+% Generic stuff for inclusion exercise file -- do not change
+%
+\newtheorem{exc}{Exercise}
+\newenvironment{Exc}[1]{\begin{exc}{\normalfont #1}}{\end{exc}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\newcommand{\homework}{\homeworknumber\ (Ch. \homeworkchapter)}
+
+% Change those definitions for the different homeworks:
+\newcommand{\homeworknumber}{1}
+\newcommand{\homeworkchapter}{2}
+
+\newboolean{solutions}
+\setboolean{solutions}{false}
+
+\input{firstpage.tex}
+
+\newpage
+
+\section*{Homework~\homework}
+
+% Fill in your proofs via the proof environment
+% \begin{proof}
+% ...
+% \end{proof}
+% after every exercise in the following file:
+
+\input{ex\homeworknumber.tex}
+
+\end{document}
+\endinput

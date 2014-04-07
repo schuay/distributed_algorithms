@@ -1,0 +1,46 @@
+\begin{Exc}{(A3.9.v0, 4 points):}
+Consider the ring $R_n^{rev}$, where processor $p_i$ has UID
+$rev(i)$, $0\leq i \leq n-1$ for $n=2^k$. Prove that all
+consecutive segments of size $2^\ell$, $0<\ell < k$, in $R_n^{rev}$
+are order-equivalent.
+
+\normalfont
+Hint: For any $i'=i \mod 2^\ell$ and $j'=j \mod 2^\ell$ with $j\neq i$,
+show that $rev(i) - rev(j)>0$ implies $rev(i') - rev(j')>0$.
+\end{Exc}
+\begin{Exc}{(A3.10.1.v1, 5 points):}
+Consider an anonymous ring where processors start with binary
+inputs. Prove rigorously that there is no uniform synchronous
+algorithm for computing the AND of all the input bits.
+
+\normalfont
+Hint: Consider executions in rings $R$ with all-``1'' inputs and
+in large rings $R'$ with a single``0'' input.
+\end{Exc}
+\begin{Exc}{(A3.10.3.v3, 7 points):}
+Consider an anonymous ring where processors start with binary
+inputs. Prove that $\Omega(n^2)$ is a lower bound for the
+message complexity of any (non-uniform, message-driven)
+asynchronous algorithm that computes the AND of all the
+input bits. Show by means of a counter-example that this
+lower bound does not hold for synchronous algorithms.
+
+\normalfont
+Hint: Consider a synchronous (lockstep round) execution of the asynchronous
+algorithm, and use similar arguments as in the proof of the message complexity lower bound
+for synchronous comparison-based leader election: What can you say about the state of $p_i$ after
+round $k$? What is a suitable choice for a ``highly symmetric'' ring here? How many
+(active) rounds are at least required to compute the AND correctly?
+\end{Exc}
+\begin{Exc}{(S2.3.v0, 10 points):}
+Consider the simple asynchronous leader election algorithm of Sec.~3.3.1 of
+the textbook (Slide 82 of the lecture slides). Provide the complete
+pseudo-code description and the transition relation of this algorithm,
+and a complete and rigorous correctness proof (safety and liveness).
+
+\normalfont
+Hint: Try to find a suitable invariant for your safety proof, which allows
+you to deduce that non-maximal $id_i$'s can never make it around the ring.
+The liveness proof could use the proof of the flooding algorithm
+(Algorithm 2) as an inspiration.
+\end{Exc}
