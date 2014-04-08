@@ -43,6 +43,24 @@ Hint: Consider executions in rings $R$ with all-``1'' inputs and
 in large rings $R'$ with a single``0'' input.
 \end{Exc}
 
+\begin{proof}
+Fix any anonymous, uniform, synchronous algorithm $A$ that computes the logical AND over the input of
+all processors. Assume that it terminates with result $1$ in $r(n)$ rounds when executed on a ring $R$ consisting
+of $n$ processors $p_0, \ldots, p_{n-1}$ with all inputs equalling $1$.
+
+We now construct a ring $R'$ by combining a segment of $n + 2r(n)$ processors with input $1$
+($\underline{p}_i, p_i, \overline{p}_i$) with a single processor with input $0$ ($q$):
+$\underline{p}_0, \ldots, \underline{p}_{r(n) - 1},
+ p_0, \ldots, p_{n-1},
+ \overline{p}_0, \ldots, \overline{p}_{r(n) - 1},
+ q.$
+Consider the first $r(n)$ rounds of an execution of $A$ on the ring $R'$. Since by anonymity
+the $r(n)$-neighborhood
+of each $p_i$ in $R'$ is equivalent to the $r(n)$ neighborhood for each $p_i$ in $R$, their state
+after $r(n)$ rounds must be identical, i.e. they must have terminated with result $1$. This is however
+a contradiction, since input $0$ of node $q$ forces the output of the algorithm to $0$.
+\end{proof}
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(A3.10.3.v3, 7 points):}
