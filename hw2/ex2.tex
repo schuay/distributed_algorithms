@@ -1,3 +1,6 @@
+\newcommand{\off}[1]{\text{off}_{#1}}
+\newcommand{\rev}[1]{\text{rev}(#1)}
+
 \begin{Exc}{(A3.9.v0, 4 points):}
 Consider the ring $R_n^{rev}$, where processor $p_i$ has UID
 $rev(i)$, $0\leq i \leq n-1$ for $n=2^k$. Prove that all
@@ -8,6 +11,25 @@ are order-equivalent.
 Hint: For any $i'=i \mod 2^\ell$ and $j'=j \mod 2^\ell$ with $j\neq i$,
 show that $rev(i) - rev(j)>0$ implies $rev(i') - rev(j')>0$.
 \end{Exc}
+
+\begin{proof}
+Take any index $0 \leq s < n$, any $0 < \ell < k$, and any $0 \leq \off{i}, \off{j} < 2^\ell$ (all
+arithmetic in this proof is modulo $n$).
+Let indices $i = s + \off{i}$, $j = s + \off{j}$, $i' = i + 2^\ell$, and $j' = j + 2^\ell$, i.e.
+we consider the segment $S$ of length $2^\ell$ starting at $s$ and its neighbor segment $S'$ starting
+at $s' = s + 2^\ell$. $i, j$ are arbitrary nodes within $S$, and $i', j'$ their corresponding nodes
+in $S'$.
+
+We now prove that $S, S'$ are order-equivalent by showing that
+$\rev{i} < \rev{j} \iff \rev{i'} < \rev{j'}$.
+
+Notice that a) adding $2^\ell$ to $i$ ($j$) does not affect the $\ell$ least significant bits of $i$ ($j$),
+and that b) in any sequence of $2^\ell$ consecutive numbers, the $\ell$ least significant bits are unique.
+It follows from a) that the $\ell$ least significant bits of $i'$ ($j'$) are identical to those of
+$i$ ($j$). These in turn are the $\ell$ most significant bits in $\rev{i}, \rev{j}, \rev{i'}, \rev{j'}$,
+and it follows from b) that they completely determine the ordering relation of all elements in segments
+$S, S'$.
+\end{proof}
 
 % ------------------------------------------------------------------------------
 
