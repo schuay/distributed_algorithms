@@ -300,8 +300,8 @@ Elementary transitions for each $p_i$:
       Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
-      \item $\text{outbuf}_i[j] = \text{outbuf}_i[j] \cup \text{neighbors}_i[\cdot]$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{``?''}$
+      \item $\text{outbuf}_i[j] = \text{outbuf}_i[j] \cup \{\text{neighbors}_i[\cdot]\}$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{\{``?''\}}$
       \end{itemize}
 \item \emph{Transition 2.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$
       such that $j = \text{neighbors}_i[k]$,
@@ -310,9 +310,9 @@ Elementary transitions for each $p_i$:
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $\overline{N}_i = \overline{N}_i \cup \{ p_j \}$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
       \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
-             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{``?''}$. (Sending
+             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{\{``?''\}}$. (Sending
              to a nonexistent neighbor has no effect).
       \end{itemize}
 \item \emph{Transition 3.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$
@@ -322,9 +322,9 @@ Elementary transitions for each $p_i$:
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $N_i = N_i \cup \{ p_j \}$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{neighbors}_j[\cdot]$
+      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
       \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
-             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{``?''}$. (Sending
+             \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \{\text{``?''}\}$. (Sending
              to a nonexistent neighbor has no effect).
       \end{itemize}
 \end{itemize}
