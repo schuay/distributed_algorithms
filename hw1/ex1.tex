@@ -10,6 +10,9 @@ height t sends a message to its parent. For the asynchronous case, prove that
 by time t, a processor at height t has sent a message to its parent.
 \end{comment}
 
+% TODO: Define depth functions for each example, esp. if they differ.
+% TODO: Use consistent notation for depth (d/t/D).
+
 \newcommand{\prnt}[1]{\text{parent}(#1)}
 \newcommand{\dpth}[1]{\text{depth}(#1)}
 
@@ -131,7 +134,7 @@ $M^k$) for generating $M^k$, and the local memory requirement
 \For{each round $t$}
     \State $\text{msgs}_i \gets \text{msgs}_i \cup \text{the set of all received messages}$
 
-    \If{$k = t - h(p_i) > 0$} \label{line:if}
+        \If{$k = t - h_i > 0$} \label{line:if}
         \State Remove all $D_*^k$ from $\text{msgs}_i$ and send them to parent \label{line:send}
     \EndIf
 \EndFor
@@ -142,12 +145,12 @@ Essentially, each node waits until it has all $D_*^k$ messages and
 then forwards them to its parent, using $\text{msgs}_i$ as temporary storage.
 
 \begin{lemma} \label{lem:tpipe}
-At the beginning of round $k + D$, the root node $p_0$ of a tree of diameter $D$
+At the beginning of round $k + D$, the root node $p_0$ of a tree of depth $D$
 stores the set of all $D_*^k$ messages in $\text{msgs}_i \cup \text{inbuf}_i[\cdot]$.
 \end{lemma}
 
 \begin{proof}
-Induction on the diameter $D$.
+Induction on the depth $D$.
 
 The base case is a tree with $D = 0$. Since the tree consists only of a single node $p_0$,
 $\text{msgs}_0$ is initialized to contain the set of all $D_0^*$, 
@@ -156,13 +159,13 @@ the complete set of $D_*^k$ messages is contained in
 $\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$ at the beginning of round $k$.
 
 We now assume that at the beginning of round $k + D'$, the root node $p_0$ of a 
-tree of diameter $D'$ stores the set of all $D_*^k$ messages in 
-$\text{msgs}_i \cup \text{inbuf}_i[\cdot]$ for all diameters $D' \leq D - 1$.
-Consider a tree $T$ of diameter $D$ and all subtrees $T'_i$ rooted at
+tree of depth $D'$ stores the set of all $D_*^k$ messages in 
+$\text{msgs}_i \cup \text{inbuf}_i[\cdot]$ for all depth $D' \leq D - 1$.
+Consider a tree $T$ of depth $D$ and all subtrees $T'_i$ rooted at
 the child nodes of $T$'s root node. It follows for every $T'_i$:
 
 \begin{itemize}
-\item The diameter of $T'_i$ is $h_i \leq D - 1$.
+\item The depth of $T'_i$ is $h_i \leq D - 1$.
 \item By the induction hypothesis, in round $k + h_i$ the root node stores
       the complete set of $D_*^k$.
 \item Inspecting the algorithm, we see in lines \ref{line:if} and \ref{line:send}
@@ -187,7 +190,7 @@ round, and arrive in round $k + D + 1$.
 \end{proof}
 
 Each message $D_i^k$ follows the unique path from $p_i$ to the root node $p_0$.
-The longest such path is of length $D$. Therefore, the bit complexity is $O(DB)$.
+The longest such path is of length $D$, and $M^k$ consists of $n$ messages; therefore, the bit complexity is $O(DBn)$.
 
 A node $p_i$ at height $h_i$ stores, in the worst case, the messages of itself and
 all its descendants for up to $h_i + 1$ rounds. A local space complexity of
@@ -278,6 +281,10 @@ in $G$, then every shorter link $(p_i,p_\ell)$ with $|(p_i,p_\ell)|
 \end{enumerate}
 \end{Exc}
 
+% TODO: Assumption of n > 1, idle transition, 'sending to nonexistent
+% neighbors', N' = N \union .. notation, don't use lexicographic
+% order for compound transitions, define \Phi'.
+
 The state machine description of the given algorithm is as follows:
 
 Variables $\in L_i$ of processor $p_i$:
@@ -366,11 +373,11 @@ p_\ell <_i p_j$ (which would force $\phi_j$ to exclude $p_i$).
 
 \begin{align}
 &\exists p_\ell \in N_j \cup \overline{N}_j: p_\ell <_i p_j \text{ in } C_{j-1} & \\
-&p_\ell <_j p_i & \text{1, since } p_\ell \in N_j \cup \overline{N}_j \\
-&p_\ell \in N_i \cup \overline{N}_i \text{ in } C_{i-1} & \text{1, since } p_\ell <_i p_j \\
-&p_\ell \in N_i \cup \overline{N}_i: p_\ell <_j p_i \text{ in } C_{i-1} & \text{2, 3} \\
-&p_j \in \overline{N}_i \text{ in } C_i & \text{4, algorithm line 10} \\
-&p_j \not\in N_i \text{ in } C_i & \text{5, mutual exclusion of } N_i, \overline{N}_i
+&p_\ell <_j p_i & \text{(1), since } p_\ell \in N_j \cup \overline{N}_j \\
+&p_\ell \in N_i \cup \overline{N}_i \text{ in } C_{i-1} & \text{(1), since } p_\ell <_i p_j \\
+&p_\ell \in N_i \cup \overline{N}_i: p_\ell <_j p_i \text{ in } C_{i-1} & \text{(2), (3)} \\
+&p_j \in \overline{N}_i \text{ in } C_i & \text{(4), algorithm line 10} \\
+&p_j \not\in N_i \text{ in } C_i & \text{(5), mutual exclusion of } N_i, \overline{N}_i
 \end{align}
 This contradicts the assumption, and therefore $\phi_j$ must add $p_i$ to $N_j$.
 
@@ -432,5 +439,7 @@ W.l.o.g., let $p_i$ add $e_{ij}$ and $e_{ik}$ to $N_i$, and $e_{ij} <_i e_{ik}$.
 By theorem \ref{thm:tconsistent} it follows that $e_{ij} \in N_j$ and $e_{ik}
 \in N_k$. Note that $e_{ik} <_k e_{jk}$, otherwise $e_{ik}$ could not be added
 to $N_i$. But then, $e_{jk}$ must be added to $\overline{N}_k$, since
-by transitivity $e_{ij} <j e_{jk}$.
+by transitivity $e_{ij} <_j e_{jk}$.
 \end{proof}
+
+% Transitivity - not really. Expand on this.
