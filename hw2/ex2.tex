@@ -114,7 +114,86 @@ The liveness proof could use the proof of the flooding algorithm
 (Algorithm 2) as an inspiration.
 \end{Exc}
 
-% TODO: Pseudo-code, transition relation.
+\begin{algorithm}
+\caption{Simple asynchronous leader election} \label{alg:ale}
+\begin{algorithmic}[1]
+\Statex Code for processor $p_i, 0 \leq i < n$
+\Statex Initially, $leader_i = $ null, and $id_i$ has been sent to the left neighbor
+\For{each round}
+    \If{$state_i \neq $ null}
+        \State \textbf{continue}
+    \EndIf
+
+    \If{received message $id_j > id_i$}
+        \State forward $id_j$ to left neighbor
+    \ElsIf{received message $id_j = id_i$}
+        \State $leader_i \gets id_i$
+        \State send termination message with $id_i$ to left neighbor
+    \ElsIf{received message $id_j < id_i$}
+        \State do nothing, i.e. swallow message
+    \ElsIf{received termination message with $id_j$}
+        \State $leader_i \gets id_j$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+The transition relations are as follows:
+
+Variables $\in L_i$ of processor $p_i$:
+\begin{itemize}
+\item $leader_i[\cdot]$: a node ID or null
+\end{itemize}
+
+Initial state for all $i$:
+\begin{itemize}
+\item $leader_i = null$
+\item $\inbuf_i[\cdot] = \emptyset$
+\item $\outbuf_i[left] = id_i$
+\item $\outbuf_i[right] = \emptyset$
+\end{itemize}
+
+Elementary transitions for each $p_i$:
+\begin{itemize}
+\item $\forall q_i \in Q_i: id_j \in \inbuf_i[right]: id_j > id_i$ and $leader_i = null$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $\outbuf'_i[left] = \outbuf_i[left] \cup \{id_j\}$
+      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{id_j\}$
+      \end{itemize}
+\item $\forall q_i \in Q_i: id_j \in \inbuf_i[right]: id_j = id_i$ and $leader_i = null$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $leader'_i = id_j$
+      \item $\outbuf'_i[left] = \outbuf_i[left] \cup \{term_i\}$
+      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{id_j\}$
+      \end{itemize}
+\item $\forall q_i \in Q_i: id_j \in \inbuf_i[right]: id_j < id_i$ and $leader_i = null$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{id_j\}$
+      \end{itemize}
+\item $\forall q_i \in Q_i: term_j \in \inbuf_i[right]$ and $leader_i = null$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $leader'_i = id_j$
+      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{id_j\}$
+      \end{itemize}
+\item $\forall q_i \in Q_i: leader_i \neq null$.
+      Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
+      where $q'_i = q_i$ except:
+      \begin{itemize}
+      \item $\inbuf'_i[\cdot] = \emptyset$
+      \end{itemize}
+\end{itemize}
+
+The set of compound transitions $\Phi'_i$ consists of the transitive closure over all elementary
+transitions such that only a single compound transition is included for a given configuration. An
+idle transition is included as well.
 
 Safety in the context of leader election algorithms means that at most one processor is in the
 elected state at any time. This particular algorithm elects the processor with the maximal ID.
