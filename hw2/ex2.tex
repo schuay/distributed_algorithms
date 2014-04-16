@@ -79,7 +79,59 @@ round $k$? What is a suitable choice for a ``highly symmetric'' ring here? How m
 (active) rounds are at least required to compute the AND correctly?
 \end{Exc}
 
-% TODO: Proof for async lower bound.
+We will show the lower bound of $\Omega(n^2)$ messages for an anonymous, non-uniform,
+asynchronous algorithm calculating the logical AND over all binary inputs by
+constructing a highly symmetrical ring $S_n = (p_0, \ldots, p_{n-2}, q)$ and showing
+that any anonymous, non-uniform, symmetric algorithm $A$ which gains knowledge solely
+through receival of messages (i.e. not through non-receival in a specific round)
+must send at least $\Omega(n^2)$ messages.
+We assume
+that at the end of the algorithm, every processor must know the overall result.
+
+The ring $S_n$ consists of a single processor $q$ with input 0 and an even number of processors 
+$P = \{ p_0, \ldots, p_{n-2} \}, |P| = n - 1$ with input 1. Note that since $A$ is anonymous, all $p_i$
+have identical state machines. Furthermore, any k-neighborhood consisting solely
+of $p_i \in P$ (a k-P-neighborhood) identical behavior in the first $k$ active rounds.
+
+\begin{lemma} \label{lemma:nrkpneighborhoods}
+For $0 \leq k < \frac{n-1}{2}$, $S_n$ has exactly $n-2k-1$ k-P-neighborhoods.
+\end{lemma}
+
+\begin{proof}
+A k-P-neighborhood consists of $2k + 1$ processors. For a fixed $k$, the first
+k-P-neighborhood ranges from $p_0$ to $p_{2k}$ while the last ranges from $p_{n-2-2k}$
+to $p_{n-2}$, with a k-P-neighborhood starting at every $p_i, 0 \leq i < n - 2k - 1$.
+\end{proof}
+
+Note that any $p_i$ at the center of a k-P-neighborhood communicates solely with
+processors $\in P$ in the first $k$ active (definition as in the book and lecture)
+rounds $r_0, \ldots, r_{k-1}$, and therefore cannot decide on a final result of $0$ within the first $k$
+active rounds.
+
+Since we require all processors to know the final result, this implies that the
+algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$.
+
+% TODO: Argue round lower bound better.
+
+\begin{theorem}
+Any anonymous, non-uniform, asynchronous algorithm calculating the logical AND
+must send $\Omega(n^2)$ messages.
+\end{theorem}
+
+\begin{proof}
+We've seen that there are at least $\frac{n-1}{2}$ active rounds. In round $r_k$,
+there are $n-2k-1$ processors with identical k-P-neighborhoods, each of which
+send a message. This results in a lower bound of:
+
+\begin{align}
+\sum_{k = 0}^{\frac{n-1}{2}} (n-2k-1) = \frac{(n-1)(n+1)}{4} = \Omega(n^2)
+\end{align}
+
+messages when executing $A$ on $S_n$. Since lock-step synchronous execution
+is a special case of asynchronous execution, the lower bounds holds for
+any asynchronous algorithm.
+\end{proof}
+
 
 \begin{theorem}
 The lower bound of $\Omega(n^2)$ messages for an anonymous, non-uniform algorithm calculating the
