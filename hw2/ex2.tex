@@ -79,6 +79,8 @@ round $k$? What is a suitable choice for a ``highly symmetric'' ring here? How m
 (active) rounds are at least required to compute the AND correctly?
 \end{Exc}
 
+% TODO: Proof for async lower bound.
+
 \begin{theorem}
 The lower bound of $\Omega(n^2)$ messages for an anonymous, non-uniform algorithm calculating the
 logical AND of all binary inputs does not hold in synchronous systems.
@@ -97,7 +99,6 @@ id gets to send its leader message, which is then forwarded exactly once by all 
 the ring).
 \end{proof}
 
-
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(S2.3.v0, 10 points):}
@@ -112,3 +113,54 @@ you to deduce that non-maximal $id_i$'s can never make it around the ring.
 The liveness proof could use the proof of the flooding algorithm
 (Algorithm 2) as an inspiration.
 \end{Exc}
+
+% TODO: Pseudo-code, transition relation.
+
+Safety in the context of leader election algorithms means that at most one processor is in the
+elected state at any time. This particular algorithm elects the processor with the maximal ID.
+Let $p_0$ be that processor in ring $R = (p_0, \ldots, p_{n-1}$. Let $\outbuf_i$ be a shorthand for
+$\outbuf_i[\text{left}]$, and $id_i$ for $id(p_i)$.
+
+\begin{theorem}
+No processor other than $p_0$ can terminate as the leader.
+\end{theorem}
+
+\begin{proof}
+Observe that in order to terminate as the leader, a processor $p_i$ must receive its own message
+$id_i$, and that (since the message originated at $p_i$ itself and messages are sent only to the left)
+this message must have traversed the entire ring. It follows from the code that the processor with
+the maximal id $p_0$ will never forward a message $id_i < id_0$; therefore no $p_i, i \neq 0$ can
+terminate as the leader.
+\end{proof}
+
+Liveness of a leader election algorithm implies that eventually all processors terminate, and
+at least one processor enters an elected state.
+
+\begin{lemma}
+The message containing $id_0$ is in $\outbuf_{r-1}$ at the beginning of round $r$.
+\end{lemma}
+
+\begin{proof} \label{lemma:le-liveness}
+By induction on the round number $r$.
+
+In the initial state and therefore at the beginning of round $0$, $id_0$ is in $\outbuf_0$.
+
+Assume the statement holds
+in round $i$; since $id_0$ is then in $\outbuf_{i-1}$ at the beginning of the round, it is received
+by $p_i$ in the same round. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_i$
+and is therefore placed into $\outbuf_i$ at the beginning of round $i + 1$.
+\end{proof}
+
+\begin{theorem}
+Processor $p_0$ enters an elected state in round $n$, and all other processors terminate
+by round $2n$.
+\end{theorem}
+
+\begin{proof}
+By lemma \ref{lemma:le-liveness}, $id_0$ is in $\outbuf_{n-1}$ at the beginning of round $n$.
+$p_0$ therefore receives its own id in the same round, sends a termination message to $p_1$,
+and terminates as the leader. Upon receiving the termination message, every non-terminated
+processor $p_i$ 1) forwards the message (proof by induction) and 2) terminate. Since there are
+$n$ processors, $n$ additional rounds are needed for the termination message to propagate completely.
+\end{proof}
+
