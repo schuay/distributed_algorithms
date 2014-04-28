@@ -1,4 +1,4 @@
-\begin{Exc}{(A2.2.v0, 5 points):}
+\begin{Exc}{(A2.2.v0, 5 points):} \label{exc:1}
 Analyze the time complexity of the convergecast algorithm
 (maximum-finding) of Section 2.2 of the textbook when (a) communication is
 synchronous and (b) communication is asynchronous.
@@ -9,9 +9,6 @@ Hint: For the synchronous case, prove that during round t + 1, a processor at
 height t sends a message to its parent. For the asynchronous case, prove that
 by time t, a processor at height t has sent a message to its parent.
 \end{comment}
-
-% TODO: Define depth functions for each example, esp. if they differ.
-% TODO: Use consistent notation for depth (d/t/D).
 
 \newcommand{\prnt}[1]{\text{parent}(#1)}
 \newcommand{\hght}[1]{\text{height}(#1)}
@@ -132,11 +129,15 @@ $M^k$) for generating $M^k$, and the local memory requirement
 \end{enumerate}
 \end{Exc}
 
+The solution to this exercise reuses the definition of the height and parent functions
+from exercise \ref{exc:1}. In order to avoid confusion with the set of messages,
+heights will be denoted using the variable $h$.
+
 \begin{algorithm}
 \caption{Tree Pipeline} \label{alg:tpipe}
 \begin{algorithmic}[1]
 \Statex Code for processor $p_i, 0 \leq i \leq n - 1$
-\Statex Initially, $h_i = i$'s height, $\text{parent}_i = i$'s parent,
+\Statex Initially, $h_i = \hght{i}$, $\text{parent}_i = \prnt{i}$,
        and msgs$_i = \{ D_i^1, D_i^2, \ldots \}$
 \For{each round $t$}
     \State $\text{msgs}_i \gets \text{msgs}_i \cup \text{the set of all received messages}$
@@ -152,56 +153,62 @@ Essentially, each node waits until it has all $D_*^k$ messages and
 then forwards them to its parent, using $\text{msgs}_i$ as temporary storage.
 
 \begin{lemma} \label{lem:tpipe}
-At the beginning of round $k + D$, the root node $p_0$ of a tree of depth $D$
+At the beginning of the computation phase in round $k + h$,
+the root node $p_0$ of a tree of height $h$
 stores the set of all $D_*^k$ messages in $\text{msgs}_i \cup \text{inbuf}_i[\cdot]$.
 \end{lemma}
 
 \begin{proof}
-Induction on the depth $D$.
+Induction on the height $h$.
 
-The base case is a tree with $D = 0$. Since the tree consists only of a single node $p_0$,
+The base case is a tree with $h = 0$. Since the tree consists only of a single node $p_0$,
 $\text{msgs}_0$ is initialized to contain the set of all $D_0^*$, 
-and messages $D_*^k$ are only removed in the corresponding round $k + D = k$, 
+and messages $D_*^k$ are only removed in the corresponding round $k + h = k$,
 the complete set of $D_*^k$ messages is contained in 
-$\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$ at the beginning of round $k$.
+$\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$ at the beginning of round $k$'s computation phase.
 
-We now assume that at the beginning of round $k + D'$, the root node $p_0$ of a 
-tree of depth $D'$ stores the set of all $D_*^k$ messages in 
-$\text{msgs}_i \cup \text{inbuf}_i[\cdot]$ for all depth $D' \leq D - 1$.
-Consider a tree $T$ of depth $D$ and all subtrees $T'_i$ rooted at
+We now assume that at the beginning of the computation phase in
+round $k + h'$, the root node $p_0$ of a
+tree of height $h'$ stores the set of all $D_*^k$ messages in
+$\text{msgs}_i \cup \text{inbuf}_i[\cdot]$ for all height $h' \leq h - 1$.
+Consider a tree $T$ of height $h$ and all subtrees $T'_i$ rooted at
 the child nodes of $T$'s root node. It follows for every $T'_i$:
 
 \begin{itemize}
-\item The depth of $T'_i$ is $h_i \leq D - 1$.
-\item By the induction hypothesis, in round $k + h_i$ the root node stores
+\item The height of $T'_i$ is $h_i \leq h - 1$.
+\item By the induction hypothesis, in round $k + h_i$'s computation phase the root node stores
       the complete set of $D_*^k$.
 \item Inspecting the algorithm, we see in lines \ref{line:if} and \ref{line:send}
-      that all $D_*^k$ are sent to the root's parent in round $k + h_i$.
-\item These messages arrive at the subtree's root's parent in root $k + h_i + 1$.
+      that all $D_*^k$ are sent to the root's parent in round $k + h_i + 1$ (the
+      corresponding computation step takes place on round earlier).
+\item These messages arrive at the subtree's root's parent in round $k + h_i + 1$
+      and are available in the same round's computation phase.
 \end{itemize}
 
-Because $\forall i: h_i \leq D - 1$, they arrive at $p_0$ at 
-$\max_i k + h_i + 1 \leq k + D$. Since messages are stored in $\text{msgs}_0$
-upon arrival, and $D_*^k$ messages are removed only in round $k + D$,
-$p_0$ must contain all $D_*^k$ in $\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$.
+Because $\forall i: h_i \leq h - 1$, they arrive at $p_0$ at
+$\max_i k + h_i + 1 \leq k + h$. Since messages are stored in $\text{msgs}_0$
+upon arrival, and $D_*^k$ messages are removed only in round $k + h$,
+$p_0$ must contain all $D_*^k$ in $\text{msgs}_0 \cup \text{inbuf}_0[\cdot]$
+at the beginning of the computation phase in round $k + h$.
 \end{proof}
 
 \begin{theorem}
-$p_{sink}$ receives the set of all $D_*^k$ messages in round $k + D + 1$.
+$p_{sink}$ receives the set of all $D_*^k$ messages in round $k + h + 1$.
 \end{theorem}
 
 \begin{proof}
 By lemma \ref{lem:tpipe}, $p_0$ has all $D_*^k$ messages at the beginning
-of round $k + D$. By the code, these are sent to its parent $p_{sink}$ in the same
-round, and arrive in round $k + D + 1$.
+of round $k + h$. By the code, these are sent to its parent $p_{sink}$ in the same
+round, and arrive in round $k + h + 1$.
 \end{proof}
 
 Each message $D_i^k$ follows the unique path from $p_i$ to the root node $p_0$.
-The longest such path is of length $D$, and $M^k$ consists of $n$ messages; therefore, the bit complexity is $O(DBn)$.
+The longest such path is of length $h$, and $M^k$ consists of $n$ messages;
+therefore, the bit complexity for each $M^k$ is $O(nhB)$.
 
 A node $p_i$ at height $h_i$ stores, in the worst case, the messages of itself and
 all its descendants for up to $h_i + 1$ rounds. A local space complexity of
-$O(nh_i)$ follows.
+$O(nh_iB)$ follows for each $k$.
 
 % ------------------------------------------------------------------------------
 
