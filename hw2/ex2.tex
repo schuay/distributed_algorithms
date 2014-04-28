@@ -36,8 +36,10 @@ algorithm for computing the AND of all the input bits.
 \end{Exc}
 
 \begin{proof}
-Fix any anonymous, uniform, synchronous algorithm $A$ that computes the logical AND over the input of
-all processors. Assume that it terminates with result $1$ in $r(n)$ rounds when executed on a ring $R$ consisting
+By way of contradiction, assume that there exists an anonymous, uniform,
+synchronous algorithm that computes the logical AND over the input of
+all processors, and fix any such algorithm $A$.
+Assume that it terminates with result $1$ in $r(n)$ rounds when executed on a ring $R$ consisting
 of $n$ processors $p_0, \ldots, p_{n-1}$ with all inputs equalling $1$.
 
 We now construct a ring $R'$ by combining a segment of $n + 2r(n)$ processors with input $1$
@@ -68,7 +70,7 @@ We will show the lower bound of $\Omega(n^2)$ messages for an anonymous, non-uni
 asynchronous algorithm calculating the logical AND over all binary inputs by
 constructing a highly symmetrical ring $S_n = (p_0, \ldots, p_{n-2}, q)$ and showing
 that any anonymous, non-uniform, symmetric algorithm $A$ which gains knowledge solely
-through receival of messages (i.e. not through non-receival in a specific round)
+through reception of messages (i.e. not through non-reception in a specific round)
 must send at least $\Omega(n^2)$ messages.
 We assume
 that at the end of the algorithm, every processor must know the overall result.
@@ -76,7 +78,7 @@ that at the end of the algorithm, every processor must know the overall result.
 The ring $S_n$ consists of a single processor $q$ with input 0 and an even number of processors 
 $P = \{ p_0, \ldots, p_{n-2} \}, |P| = n - 1$ with input 1. Note that since $A$ is anonymous, all $p_i$
 have identical state machines. Furthermore, any k-neighborhood consisting solely
-of $p_i \in P$ (a k-P-neighborhood) identical behavior in the first $k$ active rounds.
+of $p_i \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ active rounds.
 
 \begin{lemma} \label{lemma:nrkpneighborhoods}
 For $0 \leq k < \frac{n-1}{2}$, $S_n$ has exactly $n-2k-1$ k-P-neighborhoods.
@@ -94,9 +96,9 @@ rounds $r_0, \ldots, r_{k-1}$, and therefore cannot decide on a final result of 
 active rounds.
 
 Since we require all processors to know the final result, this implies that the
-algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$.
+algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$ because
+in each such round at least one k-P-neighborhood exists.
 
-% TODO: Argue round lower bound better.
 % TODO: Change definition of 'active round' to 'P-active round', which only considers
 %       messages sent by a processor in P.
 
@@ -129,9 +131,12 @@ logical AND of all binary inputs does not hold in synchronous systems.
 The following algorithm for a ring of size $n$ with processors $p_0, \ldots, p_{n-1}$
 is given as a counterexample. Let the maximum over all processor ids be $p_{max}$.
 The algorithm proceeds in $p_{max}$ phases of $n$ rounds each.
-If it has not terminated yet, processor $p_i$ sends a leader message containing its id
+In the first round of phase $i$, if it has not terminated yet,
+processor $p_i$ sends a leader message containing its id
 to its left neighbor and terminates as the leader. Upon receiving a message, non-terminated processors
-terminate as non-leaders and forward the message to their left neighbor.
+terminate as non-leaders and forward the message to their left neighbor. Since there
+are $n$ rounds in phase $i$, the leader message can propagate to all nodes before
+round $i+1$ begins.
 
 This algorithm elects a leader with $O(n)$ message complexity (only the processor with the lowest
 id gets to send its leader message, which is then forwarded exactly once by all other processors in
@@ -142,7 +147,7 @@ the ring).
 
 \begin{Exc}{(S2.3.v0, 10 points):}
 Consider the simple asynchronous leader election algorithm of Sec.~3.3.1 of
-the textbook (Slide 82 of the lecture slides). Provide the complete
+the textbook (Slide 104 of the lecture slides). Provide the complete
 pseudo-code description and the transition relation of this algorithm,
 and a complete and rigorous correctness proof (safety and liveness).
 \end{Exc}
@@ -153,7 +158,7 @@ and a complete and rigorous correctness proof (safety and liveness).
 \Statex Code for processor $p_i, 0 \leq i < n$
 \Statex Initially, $leader_i = $ null, and $id_i$ has been sent to the left neighbor
 \For{each round}
-    \If{$state_i \neq $ null}
+    \If{$leader_i \neq $ null}
         \State \textbf{continue}
     \EndIf
 
@@ -166,6 +171,7 @@ and a complete and rigorous correctness proof (safety and liveness).
         \State do nothing, i.e. swallow message
     \ElsIf{received termination message with $id_j$}
         \State $leader_i \gets id_j$
+        \State send termination message with $id_j$ to left neighbor
     \EndIf
 \EndFor
 \end{algorithmic}
@@ -230,7 +236,7 @@ idle transition is included as well.
 
 Safety in the context of leader election algorithms means that at most one processor is in the
 elected state at any time. This particular algorithm elects the processor with the maximal ID.
-Let $p_0$ be that processor in ring $R = (p_0, \ldots, p_{n-1}$. Let $\outbuf_i$ be a shorthand for
+Let $p_0$ be that processor in ring $R = (p_0, \ldots, p_{n-1})$. Let $\outbuf_i$ be a shorthand for
 $\outbuf_i[\text{left}]$, and $id_i$ for $id(p_i)$.
 
 \begin{theorem}
@@ -248,19 +254,19 @@ terminate as the leader.
 Liveness of a leader election algorithm implies that eventually all processors terminate, and
 at least one processor enters an elected state.
 
-\begin{lemma}
-The message containing $id_0$ is in $\outbuf_{r-1}$ at the beginning of round $r$.
+\begin{lemma} \label{lemma:le-liveness}
+The message containing $id_0$ is in $\outbuf_{r-1}$ at the beginning of round $r \leq n$.
 \end{lemma}
 
-\begin{proof} \label{lemma:le-liveness}
+\begin{proof}
 By induction on the round number $r$.
 
 In the initial state and therefore at the beginning of round $0$, $id_0$ is in $\outbuf_0$.
 
 Assume the statement holds
-in round $i$; since $id_0$ is then in $\outbuf_{i-1}$ at the beginning of the round, it is received
-by $p_i$ in the same round. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_i$
-and is therefore placed into $\outbuf_i$ at the beginning of round $i + 1$.
+in round $r$; since $id_0$ is then in $\outbuf_{r-1}$ at the beginning of the round, it is received
+by $p_r$ in the same round. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_r$
+and is therefore placed into $\outbuf_r$ at the beginning of round $r + 1$.
 \end{proof}
 
 \begin{theorem}
