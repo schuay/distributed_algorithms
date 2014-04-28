@@ -295,9 +295,16 @@ in $G$, then every shorter link $(p_i,p_\ell)$ with $|(p_i,p_\ell)|
 \end{enumerate}
 \end{Exc}
 
-% TODO: Assumption of n > 1, idle transition, 'sending to nonexistent
-% neighbors', N' = N \union .. notation, don't use lexicographic
-% order for compound transitions, define \Phi'.
+In this exercise, we assume:
+
+\begin{itemize}
+\item the number of processors to be $n > 1$, and
+\item that sending a message to a nonexistent neighbor has no effect (in order
+      to simplify the necessary elementary transitions). Alternatively,
+      transitions could be duplicated to explicitly handle the case of having
+      sent a message to all neighbors.
+\end{itemize}
+
 
 The state machine description of the given algorithm is as follows:
 
@@ -321,8 +328,8 @@ Elementary transitions for each $p_i$:
       Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
-      \item $\text{outbuf}_i[j] = \text{outbuf}_i[j] \cup \{\text{neighbors}_i[\cdot]\}$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \text{\{``?''\}}$
+      \item $\text{outbuf}'_i[j] = \text{outbuf}_i[j] \cup \{\text{neighbors}_i[\cdot]\}$
+      \item $\text{inbuf}'_i[j] = \text{inbuf}_i[j] \setminus \text{\{``?''\}}$
       \end{itemize}
 \item \emph{Transition 2.j}. $\forall q_i \in Q_i: \text{an array neighbors}_j[\cdot] \in \text{inbuf}_i[j]$
       such that $j = \text{neighbors}_i[k]$,
@@ -330,9 +337,9 @@ Elementary transitions for each $p_i$:
       Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
-      \item $\overline{N}_i = \overline{N}_i \cup \{ p_j \}$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
-      \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
+      \item $\overline{N}'_i = \overline{N}_i \cup \{ p_j \}$
+      \item $\text{inbuf}'_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
+      \item $\text{outbuf}'_i[\text{neighbors}_i[k + 1]] =
              \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \text{\{``?''\}}$. (Sending
              to a nonexistent neighbor has no effect).
       \end{itemize}
@@ -342,17 +349,18 @@ Elementary transitions for each $p_i$:
       Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
-      \item $N_i = N_i \cup \{ p_j \}$
-      \item $\text{inbuf}_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
-      \item $\text{outbuf}_i[\text{neighbors}_i[k + 1]] = 
+      \item $N'_i = N_i \cup \{ p_j \}$
+      \item $\text{inbuf}'_i[j] = \text{inbuf}_i[j] \setminus \{\text{neighbors}_j[\cdot]\}$
+      \item $\text{outbuf}'_i[\text{neighbors}_i[k + 1]] =
              \text{outbuf}_i[\text{neighbors}_i[k + 1]] \cup \{\text{``?''}\}$. (Sending
              to a nonexistent neighbor has no effect).
       \end{itemize}
 \end{itemize}
 
-The set of compound transitions is formed by taking the transitive closure over all elementary
+The sets of compound transitions $\overline{\Phi}_i$ are formed by taking the transitive closure over all elementary
 transitions while respecting lexicographic order on the transition labels (i.e. Transition $3.2$
-must occur before $3.4$, and $2.5$ before $3.1$).
+must occur before $3.4$, and $2.5$ before $3.1$). The state machine at each processor $i$ is
+$P_i = (Q_i, \overline{\Phi}_i, I_i, T_i)$.
 
 \begin{theorem} \label{thm:tconsistent}
 The algorithm always constructs $T$ consistently, i.e. $\forall i, j$:
@@ -453,10 +461,8 @@ W.l.o.g., let $p_i$ add $e_{ij}$ and $e_{ik}$ to $N_i$, and $e_{ij} <_i e_{ik}$.
 By theorem \ref{thm:tconsistent} it follows that $e_{ij} \in N_j$ and $e_{ik}
 \in N_k$. Note that $e_{ik} <_k e_{jk}$, otherwise $e_{ik}$ could not be added
 to $N_i$. But then, $e_{jk}$ must be added to $\overline{N}_k$, since
-by transitivity $e_{ij} <_j e_{jk}$.
+ $e_{ik} <_k e_{jk} \wedge e_{ij} <_i e_{ik} \Rightarrow e_{ij} <_j e_{jk}$.
 \end{proof}
-
-% Transitivity - not really. Expand on this.
 
 \pagebreak
 \subsection*{Review Feedback}
@@ -474,10 +480,28 @@ appropriateness, utility, ... for improving your work.
 An off-by-one mistakes was caught in
 exercise 1, and notation improvements were suggested.
 
+Regarding the complexity of a message $M^k$ in exercise 2: you correctly caught
+the missing $n$, but I stand by $O(nhB)$ with my original argument. It is
+possible to state a more exact bound, but I see no reason to complicate the argument
+(we are using asymptotical notation after all).
+
+Regarding exercise 3: I agree that the the ``proof'' is very short, but on the
+other hand I don't want to repeat ``trivially, because it's the set of all traces''
+for prefix-closed, limit-closed and extensions since in my opinion it doesn't
+add anything.
+
+Regarding the comments for exercise 4: again, while I understand your point,
+I don't fully agree with your suggestions. I believe it is clearer to first
+define elementary transitions before elaborating on compound transitions,
+and I feel that including further explanations within the elementary transition
+definitions themselves would serve only to clutter the exercise. Also note
+that transition definitions from the lecture slides are more or less identical in form.
+
 Grade: 1
 
 \subsubsection*{Review 2}
 
-Pointed out inconsistencies in notation and incorrect use of terms.
+Pointed out inconsistencies in notation and incorrect use of terms, but missed
+some of the mistakes I made.
 
-Grade: 1
+Grade: 1-2
