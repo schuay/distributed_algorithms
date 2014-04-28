@@ -14,81 +14,88 @@ by time t, a processor at height t has sent a message to its parent.
 % TODO: Use consistent notation for depth (d/t/D).
 
 \newcommand{\prnt}[1]{\text{parent}(#1)}
-\newcommand{\dpth}[1]{\text{depth}(#1)}
+\newcommand{\hght}[1]{\text{height}(#1)}
 
 First, some notation: in this exercise, we consider a distributed system of $n$
-processors $\Pi=\{p_0,\dots,p_{n-1}\}$ together with a given spanning tree of depth
-$d$ rooted at processor $p_r$. The function
+processors $\Pi=\{p_0,\dots,p_{n-1}\}$ together with a given spanning tree
+rooted at processor $p_r$. The function
 $\text{parent}: \Pi \rightarrow \Pi \cup \{ \text{null} \}$ returns the parent node
-within the spanning tree (or null for $p_r$), while each node's depth is given by
-$\text{depth}: \Pi \rightarrow \mathbb{N}$.
+within the spanning tree (or null for $p_r$), while each node's height is given by
+$\text{height}: \Pi \rightarrow \mathbb{N}$.
+
+\begin{definition}
+A node's height is defined inductively such that leaf nodes have height 0,
+and the height of all other nodes is the maximal height of their children plus one.
+\end{definition}
+
 
 \begin{lemma} \label{lemma:1sync}
 In a synchronous distributed system with a given rooted spanning tree executing the convergecast
-algorithm, every processor at depth $t$ sends a message to its parent during round $t + 1$.
+algorithm, every processor at height $h$ sends a message to its parent during round $h + 1$.
 \end{lemma}
 
 \begin{proof}
-By induction. This lemma holds for $t = 0$ by the description of the algorithm,
-since all leaf nodes $x$ send a message to $\prnt{x}$.
+By induction. This lemma holds for $h = 0$ by the description of the algorithm, since
+messages are initially in transit from all leaf nodes $x$ to $\prnt{x}$. These messages
+are then sent in round 1.
 
-Assume the lemma holds for $t \leq n$, and consider an arbitrary node $x$ at depth
-$n + 1$. By the definition of the depth function, all child nodes of $x$ must be at
-a depth $\leq n$, and by the inductive hypothesis must have sent a message to
-$x$ in round $n + 1$ or earlier.
+Assume the lemma holds for $h \leq H$, and consider an arbitrary node $x$ at height
+$H + 1$. By the definition of the height function, all child nodes of $x$ must be at
+a height $\leq H$, and by the inductive hypothesis must have sent a message to
+$x$ in round $H + 1$ or earlier.
 
 Since this is a synchronous system, these will be available
-to $x$ at the latest in round $n + 2$. By the definition of the
+to $x$ at the latest in round $H + 1$. By the definition of the
 convergecast algorithm it then computes the maximum over all received values and
-sends the resulting value to $\prnt{x}$ in round $n + 2$.
+sends the resulting value to $\prnt{x}$ in round $H + 2$.
 \end{proof}
 
 \begin{theorem}
-In a synchronous distributed system with a given rooted spanning tree of depth $d$, the time
-complexity of the convergecast algorithm is $d + 1$.
+In a synchronous distributed system with a given rooted spanning tree of height $h$, the time
+complexity of the convergecast algorithm is $h$.
 \end{theorem}
 
 \begin{proof}
 Convergecast terminates once $p_r$ has received a message from all of its children.
-$\dpth{p_r} = d$ implies that the depth of all child nodes of $p_r$ must be
-$\leq d - 1$, with equality holding for at least one child. By lemma \ref{lemma:1sync},
-every child must have sent a message to $p_r$ at the latest by round $d$. In round
-$d + 1$, $p_r$ has received a message from all child nodes and the algorithm terminates.
+$\hght{p_r} = h$ implies that the height of all child nodes of $p_r$ must be
+$\leq h - 1$, with equality holding for at least one child. By lemma \ref{lemma:1sync},
+every child must have sent a message to $p_r$ at the latest by round $h$. In round
+$h$, $p_r$ has received a message from all child nodes and the algorithm terminates.
 \end{proof}
 
 \begin{lemma} \label{lemma:1async}
 In an asynchronous distributed system with a given rooted spanning tree executing the convergecast
-algorithm, every processor at depth $t$ sends a message to its parent by time $t$.
+algorithm, every processor at height $h$ sends a message to its parent by time $h$.
 \end{lemma}
 
 \begin{proof}
-By induction. This lemma holds for $t = 0$ by the description of the algorithm,
-since all leaf nodes $x$ send a message to $\prnt{x}$.
+By induction. This lemma holds for $h = 0$ by the description of the algorithm, since
+messages are initially (at time $1$) in transit from all leaf nodes $x$ to $\prnt{x}$.
 
-Assume the lemma holds for $t \leq n$, and consider an arbitrary node $x$ at depth
-$n + 1$. By the definition of the depth function, all child nodes of $x$ must be at
-a depth $\leq n$, and by the inductive hypothesis must have sent a message to
-$x$ at time $n$ or earlier. 
-The maximal message delay is normalized, therefore all messages sent at time $n$
-must be processed by time $n + 1$.
+Assume the lemma holds for $h \leq H$, and consider an arbitrary node $x$ at height
+$H + 1$. By the definition of the height function, all child nodes of $x$ must be at
+a height $\leq H$, and by the inductive hypothesis must have sent a message to
+$x$ at time $H$ or earlier.
+The maximal message delay is normalized, therefore all messages sent at time $H$
+must be processed by time $H + 1$.
 
 This implies that $x$ must have received
-a message from all children at time $n + 1$. By the definition of the
+a message from all children at time $H + 1$. By the definition of the
 convergecast algorithm it then computes the maximum over all received values and
-sends the resulting value to $\prnt{x}$ at time $n + 1$.
+sends the resulting value to $\prnt{x}$ at time $H + 1$.
 \end{proof}
 
 \begin{theorem}
-In an asynchronous distributed system with a given rooted spanning tree of depth $d$, the time
-complexity of the convergecast algorithm is $d + 1$.
+In an asynchronous distributed system with a given rooted spanning tree of height $h$, the time
+complexity of the convergecast algorithm is $h$.
 \end{theorem}
 
 \begin{proof}
 Convergecast terminates once $p_r$ has received a message from all of its children.
-$\dpth{p_r} = d$ implies that the depth of all child nodes of $p_r$ must be
-$\leq d - 1$, with equality holding for at least one child. By lemma \ref{lemma:1async},
-every child must have sent a message to $p_r$ at the latest by time $d - 1$. At time
-$d$, $p_r$ has received a message from all child nodes and the algorithm terminates.
+$\hght{p_r} = h$ implies that the height of all child nodes of $p_r$ must be
+$\leq h - 1$, with equality holding for at least one child. By lemma \ref{lemma:1async},
+every child must have sent a message to $p_r$ at the latest by time $h - 1$. At time
+$h$, $p_r$ has received a message from all child nodes and the algorithm terminates.
 \end{proof}
 
 % ------------------------------------------------------------------------------
