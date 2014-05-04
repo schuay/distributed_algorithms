@@ -19,13 +19,26 @@ in $S'$.
 We now prove that $S, S'$ are order-equivalent by showing that
 $\rev{i} < \rev{j} \iff \rev{i'} < \rev{j'}$.
 
-Notice that a) adding $2^\ell$ to $i$ ($j$) does not affect the $\ell$ least significant bits of $i$ ($j$),
-and that b) in any sequence of $2^\ell$ consecutive numbers, the $\ell$ least significant bits are unique.
-It follows from a) that the $\ell$ least significant bits of $i'$ ($j'$) are identical to those of
+Notice that 
+
+\begin{enumerate}[a)]
+\item adding $2^\ell$ to $i$ ($j$) does not affect the $\ell$ least significant
+      bits of $i$ ($j$), that \label{item:a}
+\item in any sequence of $2^\ell$ consecutive numbers, the $\ell$ least significant
+      bits are unique, and \label{item:b}
+\item that when the $\ell$ most significant bits of two numbers $x, y$ differ, 
+      their ordering is fixed regardless their remaining least significant bits
+      (if the most significant differing bit is $2^i$, the difference between both
+      numbers is greater than the largest difference their $i$ least significant
+      bits can produce ($2^i-1$)). \label{item:c}
+\end{enumerate}
+
+It follows from \ref{item:a} that the $\ell$ least significant bits of $i'$ ($j'$) are identical to those of
 $i$ ($j$). These in turn are the $\ell$ most significant bits in $\rev{i}, \rev{j}, \rev{i'}, \rev{j'}$,
-and it follows from b) that they completely determine the ordering relation of all elements in segments
-$S, S'$.
+and it follows from \ref{item:b} and \ref{item:c} that they completely determine the ordering relation
+of all elements in segments $S, S'$.
 \end{proof}
+
 
 % ------------------------------------------------------------------------------
 
@@ -75,10 +88,11 @@ must send at least $\Omega(n^2)$ messages.
 We assume
 that at the end of the algorithm, every processor must know the overall result.
 
-The ring $S_n$ consists of a single processor $q$ with input 0 and an even number of processors 
+The ring $S_n$ consists of a single processor $q$ with input 0 and an odd number of processors 
 $P = \{ p_0, \ldots, p_{n-2} \}, |P| = n - 1$ with input 1. Note that since $A$ is anonymous, all $p_i$
 have identical state machines. Furthermore, any k-neighborhood consisting solely
-of $p_i \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ active rounds.
+of $p_i \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ active rounds
+(proof in the book and lecture slides).
 
 \begin{lemma} \label{lemma:nrkpneighborhoods}
 For $0 \leq k < \frac{n-1}{2}$, $S_n$ has exactly $n-2k-1$ k-P-neighborhoods.
@@ -99,9 +113,6 @@ Since we require all processors to know the final result, this implies that the
 algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$ because
 in each such round at least one k-P-neighborhood exists.
 
-% TODO: Change definition of 'active round' to 'P-active round', which only considers
-%       messages sent by a processor in P.
-
 \begin{theorem}
 Any anonymous, non-uniform, asynchronous algorithm calculating the logical AND
 must send $\Omega(n^2)$ messages.
@@ -110,7 +121,8 @@ must send $\Omega(n^2)$ messages.
 \begin{proof}
 We've seen that there are at least $\frac{n-1}{2}$ active rounds. In round $r_k$,
 there are $n-2k-1$ processors with identical k-P-neighborhoods, each of which
-send a message. This results in a lower bound of:
+must send a message because the information from $q$ must reach the opposing processor
+$p_{\frac{n-2}{2}}$. This results in a lower bound of:
 
 \begin{align}
 \sum_{k = 0}^{\frac{n-1}{2}} (n-2k-1) = \frac{(n-1)(n+1)}{4} = \Omega(n^2)
@@ -128,19 +140,16 @@ logical AND of all binary inputs does not hold in synchronous systems.
 \end{theorem}
 
 \begin{proof}
-The following algorithm for a ring of size $n$ with processors $p_0, \ldots, p_{n-1}$
-is given as a counterexample. Let the maximum over all processor ids be $p_{max}$.
-The algorithm proceeds in $p_{max}$ phases of $n$ rounds each.
-In the first round of phase $i$, if it has not terminated yet,
-processor $p_i$ sends a leader message containing its id
-to its left neighbor and terminates as the leader. Upon receiving a message, non-terminated processors
-terminate as non-leaders and forward the message to their left neighbor. Since there
-are $n$ rounds in phase $i$, the leader message can propagate to all nodes before
-round $i+1$ begins.
+The following algorithm $A$ for a ring of size $n$ with processors $p_0, \ldots, p_{n-1}$
+is given as a counterexample. Initially, all $p_i$ with input $0$ send $msg_0$ to their
+left neighbor.
+In rounds $1, \ldots, n$, processors with input $1$ simply forward all received
+messages, while $p_i$ with input $0$ swallow all messages. In round $n + 1$,
+each processor terminates with result ``false'' if it has received a message, and
+result ``true'' otherwise.
 
-This algorithm elects a leader with $O(n)$ message complexity (only the processor with the lowest
-id gets to send its leader message, which is then forwarded exactly once by all other processors in
-the ring).
+This algorithm elects a leader with $O(n)$ message complexity since a message
+passes each edge at most once.
 \end{proof}
 
 % ------------------------------------------------------------------------------
@@ -157,7 +166,7 @@ and a complete and rigorous correctness proof (safety and liveness).
 \begin{algorithmic}[1]
 \Statex Code for processor $p_i, 0 \leq i < n$
 \Statex Initially, $leader_i = $ null, and $id_i$ has been sent to the left neighbor
-\For{each round}
+\For{each received message}
     \If{$leader_i \neq $ null}
         \State \textbf{continue}
     \EndIf
@@ -255,30 +264,44 @@ Liveness of a leader election algorithm implies that eventually all processors t
 at least one processor enters an elected state.
 
 \begin{lemma} \label{lemma:le-liveness}
-The message containing $id_0$ is in $\outbuf_{r-1}$ at the beginning of round $r \leq n$.
+The message containing $id_0$ is eventually sent by each processor $p_i$ to $p_{i+1}$.
 \end{lemma}
 
 \begin{proof}
-By induction on the round number $r$.
+By induction on the processor position $i$.
 
-In the initial state and therefore at the beginning of round $0$, $id_0$ is in $\outbuf_0$.
+In the initial state, $p_0$ has sent $id_0$ to $p_1$.
 
 Assume the statement holds
-in round $r$; since $id_0$ is then in $\outbuf_{r-1}$ at the beginning of the round, it is received
-by $p_r$ in the same round. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_r$
-and is therefore placed into $\outbuf_r$ at the beginning of round $r + 1$.
+for processor $p_{i-1}$; since the execution is admissible, $id_0$ is eventually
+delivered and processed at $p_{i}$. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_i$
+and is therefore sent to $p_{i+1}$.
+
+% TODO: Kinda weird.
+If $i = 0$, i.e. the message has completed
+the cycle and reached its sender, the statement holds trivially since it is already
+satisfied for $p_0$.
 \end{proof}
 
-\begin{theorem}
-Processor $p_0$ enters an elected state in round $n$, and all other processors terminate
-by round $2n$.
+\begin{theorem} \label{theorem:liveness1}
+Processor $p_0$ eventually enters an elected state.
 \end{theorem}
 
 \begin{proof}
-By lemma \ref{lemma:le-liveness}, $id_0$ is in $\outbuf_{n-1}$ at the beginning of round $n$.
-$p_0$ therefore receives its own id in the same round, sends a termination message to $p_1$,
-and terminates as the leader. Upon receiving the termination message, every non-terminated
-processor $p_i$ 1) forwards the message (proof by induction) and 2) terminate. Since there are
-$n$ processors, $n$ additional rounds are needed for the termination message to propagate completely.
+By lemma \ref{lemma:le-liveness}, $p_{n-1}$ eventually sends $id_0$ to $p_0$.
+$p_0$ therefore receives its own id, sends a termination message to $p_1$,
+and terminates as the leader.
+\end{proof}
+
+\begin{theorem}
+Eventually all other processors $p_i, i > 0$ terminate.
+\end{theorem}
+
+\begin{proof}
+By Theorem \ref{theorem:liveness1}, $p_0$ eventually enters the elected state,
+upon which a termination message to $p_1$ is sent. Each remaining $p_i, i > 0$ terminates
+as non-leader on receiving the termination message, and forwards it to the left neighbor.
+By a similar induction proof as Lemma \ref{lemma:le-liveness}, the termination message
+is eventually sent to all processors.
 \end{proof}
 
