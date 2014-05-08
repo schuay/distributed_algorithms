@@ -1,0 +1,40 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{comment}
+\usepackage{ifthen}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{algorithm,algorithmicx,algpseudocode}
+\usepackage[shortlabels]{enumitem}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\setlist{noitemsep}
+
+%
+% Generic stuff for inclusion exercise file -- do not change
+%
+\newtheorem{exc}{Exercise}
+\newenvironment{Exc}[1]{\begin{exc}{\normalfont #1}}{\end{exc}}
+
+\newcommand{\homework}{\homeworknumber\ (Ch. \homeworkchapter)}
+
+
+% Change those definitions for the different homeworks:
+\newcommand{\homeworknumber}{3}
+\newcommand{\homeworkchapter}{4}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\newboolean{solutions}
+\setboolean{solutions}{true}
+
+\input{firstpage.tex}
+
+\newpage
+
+\section*{Homework~\homework}
+
+\input{ex\homeworknumber.tex}
+
+\end{document}
+\endinput

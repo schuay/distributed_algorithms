@@ -1,0 +1,74 @@
+\begin{Exc}{(A4.7.v0, 4 points):}
+Prove that Algorithm 11 in the textbook [AW04] guarantees no deadlock.
+\end{Exc}
+\begin{Exc}{(A4.14.v0, 2 points):}
+Give a fast mutual exclusion algorithm using TAS variables and
+show that it is correct.
+\end{Exc}
+\begin{Exc}{(L.10.9.v2, 11 points):}
+\newcommand{\last}[1]{#1.\mathit{last}}
+\newcommand{\first}[1]{#1.\mathit{first}}
+\newcommand{\VV}[1]{\langle #1 \rangle}
+\newcommand{\pos}{\mathit{pos}}
+\newcommand{\queue}{\mathit{queue}}
+\newcommand{\RMW}{\mathit{RMW}}
+
+Consider the mutual exclusion algorithm with RMW variables
+(Algorithm 8) from the textbook. The code for every processor
+reads:
+
+\begin{code}%
+\vspace*{-1cm}%
+Initially $V=\VV{0,0}$\\
+\\
+\emn{/* Code for entry section: */}\NL
+\> $\pos := \RMW(V,\VV{\first{V},\last{V}+1})$\emn{\ \ \ // enqueueing at tail}\NL
+\> repeat\NL
+\>\> $\queue := \RMW(V,V)$\emn{\ \ \ // read head of queue}\NL
+\> until $\first{\queue} = \last{\pos}$\emn{\ \ \ // until becomes first}\\
+\\
+\emn{/* Critical section */}\\
+\\
+\emn{/* Code for exit section */}\NL
+\> $\RMW(V,\VV{\first{V}+1,\last{V}})$\emn{\ \ \ // advance head of queue}
+\end{code}
+
+For the version of the Algorithm 8' where all variables have unbounded
+range, give a detailed proof that it guarantees mutual exclusion and
+0-bounded waiting [+ no deadlock]. Moreover, prove that always
+$\first{V} \leq \last{V} \leq \first{V}+n$.
+
+\normalfont
+Hint: You could complete the proof given in the lecture slides.
+\end{Exc}
+\begin{Exc}{(L10.44.1.v0, 5 points):}
+Recall the proof that every $k$-bounded waiting $n$-processor mutual exclusion
+algorithm with RMW variables requires at least $n$ different shared
+memory states from the textbook. This proof cannot be generalized to apply also to no-lockout
+$n$-processor mutual exclusion algorithms in general, for the reason that one must
+append a schedule $\sigma$ to the ``offending'' schedule $\omega=\tau_0\tau_1\dots\tau_j\rho$
+(where $p_{\ell}$ overtakes $p_j$ $k+1$ times), which lets all processors
+$p_0,\dots,p_j$ take infinitely many steps. Otherwise, the resulting schedule
+would not lead to an admissible execution. However, in $\sigma$, $p_j$ may of course enter the
+critical section, which would secure no lockout in $\omega\sigma$.
+
+However, if we restrict our attention to no lockout $n$-processor
+mutual exclusion algorithms with RMW variables, which satisfy the additional
+property that every fair execution of processors $p_0,\dots,p_i$
+(i.e., where all these processes make infinitely many steps)
+visits all the [finitely many] possible SHM states infinitely often,
+the proof can be
+made working: Prove that any such algorithm requires at least $n$
+different shared memory states.
+
+\normalfont
+Hint: Prove that the configurations $C_\ell$ reached by the schedule
+$\tau_0\dots\tau_\ell$ in the original proof can be chosen in a way,
+which guarantees that the SHM state $v_\ell$ assumed in $C_\ell$
+re-appears infinitely often in an infinite $p_\ell$-only schedule
+starting from $C_\ell$. [This implies that there are $p_\ell$-only
+schedules $\sigma_\ell$
+with $mem(C_\ell)=mem(\sigma_\ell(C_\ell))$, where $p_\ell$ is still in
+the entry section in $\sigma_\ell(C_\ell)$.] Conceive a way to combine
+this with the assumed additional property of our no lockout ME algorithm.
+\end{Exc}
