@@ -89,12 +89,22 @@ Give a fast mutual exclusion algorithm using TAS variables and
 show that it is correct.
 \end{Exc}
 
+An issue with the TAS lock design given in the slides is contention:
+each loop iteration writes to the shared variable which invalidate cache lines
+and slows execution since the cache coherency protocol must update the cache
+on all processors. A slight improvement is given by the Test and Test and Set
+lock design, which only writes to the shared variable if a chance of success
+exists.
+
 \begin{algorithm}
-\caption{TAS mutual exclusion} \label{alg:tas}
-\begin{lstlisting}
+\caption{TTAS mutual exclusion} \label{alg:ttas}
+\begin{lstlisting}[escapeinside={@}{@}]
 /* Initially, locked = 0. */
 /* Entry section. */
-while (tas(locked) == 1) { /* Do nothing. */ }
+while (true) {
+    while (locked) { /* Do nothing. No writes! */ }
+    if (tas(locked) == 0) { break; } @\label{line:tas}@
+}
 /* Critical section. */
 /* Exit section. */
 reset(locked);
@@ -102,7 +112,13 @@ reset(locked);
 \end{lstlisting}
 \end{algorithm}
 
-% TODO
+\begin{theorem}
+Algorithm \ref{alg:ttas} guarantees mutual exclusion.
+\end{theorem}
+
+\begin{proof}
+Identical to the TAS mutual exclusion proof in the lecture slides.
+\end{proof}
 
 % ------------------------------------------------------------------------------
 
