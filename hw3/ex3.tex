@@ -1,10 +1,16 @@
 \begin{Exc}{(A4.7.v0, 4 points):}
 Prove that Algorithm 11 in the textbook [AW04] guarantees no deadlock.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(A4.14.v0, 2 points):}
 Give a fast mutual exclusion algorithm using TAS variables and
 show that it is correct.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(L.10.9.v2, 11 points):}
 \newcommand{\last}[1]{#1.\mathit{last}}
 \newcommand{\first}[1]{#1.\mathit{first}}
@@ -37,10 +43,10 @@ For the version of the Algorithm 8' where all variables have unbounded
 range, give a detailed proof that it guarantees mutual exclusion and
 0-bounded waiting [+ no deadlock]. Moreover, prove that always
 $\first{V} \leq \last{V} \leq \first{V}+n$.
-
-\normalfont
-Hint: You could complete the proof given in the lecture slides.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(L10.44.1.v0, 5 points):}
 Recall the proof that every $k$-bounded waiting $n$-processor mutual exclusion
 algorithm with RMW variables requires at least $n$ different shared
@@ -58,17 +64,6 @@ property that every fair execution of processors $p_0,\dots,p_i$
 (i.e., where all these processes make infinitely many steps)
 visits all the [finitely many] possible SHM states infinitely often,
 the proof can be
-made working: Prove that any such algorithm requires at least $n$
+made to work: Prove that any such algorithm requires at least $n$
 different shared memory states.
-
-\normalfont
-Hint: Prove that the configurations $C_\ell$ reached by the schedule
-$\tau_0\dots\tau_\ell$ in the original proof can be chosen in a way,
-which guarantees that the SHM state $v_\ell$ assumed in $C_\ell$
-re-appears infinitely often in an infinite $p_\ell$-only schedule
-starting from $C_\ell$. [This implies that there are $p_\ell$-only
-schedules $\sigma_\ell$
-with $mem(C_\ell)=mem(\sigma_\ell(C_\ell))$, where $p_\ell$ is still in
-the entry section in $\sigma_\ell(C_\ell)$.] Conceive a way to combine
-this with the assumed additional property of our no lockout ME algorithm.
 \end{Exc}
