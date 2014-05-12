@@ -2,6 +2,86 @@
 Prove that Algorithm 11 in the textbook [AW04] guarantees no deadlock.
 \end{Exc}
 
+We consider the two cases in which $p_0$, respectively, $p_1$
+is in the entry section.
+
+\begin{lemma} \label{lemma:1.p0loop}
+If $p_0$ loops in Line 6, \lstinline|Want[0] = 1| and \lstinline|Want[1] = 1|.
+\end{lemma}
+
+\begin{proof}
+Obvious from the code.
+\end{proof}
+
+\begin{lemma} \label{lemma:1.want1}
+If \lstinline|Want[1] = 1|, $p_1$ is in lines 5-8 or in line 1.
+\end{lemma}
+
+\begin{proof}
+Obvious from the code.
+\end{proof}
+
+\begin{lemma} \label{lemma:1.want0}
+If \lstinline|Want[0] = 1|, $p_0$ is in lines 6-8.
+\end{lemma}
+
+\begin{proof}
+Obvious from the code.
+\end{proof}
+
+\begin{lemma} \label{lemma:1.p0}
+If $p_0$ is in the entry section, it eventually enters the critical section.
+\end{lemma}
+
+\begin{proof}
+By contradiction. Assume $p_0$ is in the entry section in and subsequently
+never enters the CS (critical section).
+Since $p_0$ never enters the CS, it must loop in Line 6 forever, and
+the variable assignments given in Lemma \ref{lemma:1.p0loop} must hold
+whenever $p_0$ loops. By Lemma \ref{lemma:1.want1} and since 
+\lstinline|Want[1] = 1|, $p_1$ can only be in
+
+\begin{itemize}
+\item Line 1, 5. In this case, \lstinline|Want[1]| is immediately set to 0 and $p_1$
+      then loops in Line 2 until \lstinline|Want[0] = 0|. By Lemma \ref{lemma:1.want0},
+      we know that this occurs only once $p_0$ passes Line 8, therefore
+      it is ensured that $p_0$ observes \lstinline|Want[1] = 0| in Line 6 and
+      enters the critical section.
+\item Lines 6-8. Since no process may remain in the CS forever, \lstinline|Want[1]|
+      is eventually set to 0 in Line 8. If it terminates in the remainder section,
+      then $p_0$ trivially observes \lstinline|Want[1] = 0|. Otherwise, execution
+      jumps to Line 1, in which case we may apply the argument of the previous point.      
+\end{itemize}
+
+Both cases lead to a contradiction, therefore $p_0$ eventually enters the critical
+section.
+\end{proof}
+
+\begin{lemma} \label{lemma:1.p1}
+If $p_1$ is in the entry section, a processor eventually enters the critical section.
+\end{lemma}
+
+\begin{proof}
+Assume $p_1$ is in the entry section and observe that it
+is prevented from entering the critical section only if \lstinline|Want[0] = 1|
+whenever it is read in Line 2 and Line 5. In this case $p_0$ must be within Lines
+6-8 (Lemma \ref{lemma:1.want0}). If $p_0$ is currently in Line 6, applying Lemma
+\ref{lemma:1.p0} shows that $p_0$ must enter the CS. Otherwise, $p_0$ must
+eventually execute the exit section; either $p_1$ then reads \lstinline|Want[0] = 0|
+in Line 5 and enters the CS, or $p_0$ reenters the entry section and reaches the
+CS by Lemma \ref{lemma:1.p0}.
+
+\end{proof}
+
+
+\begin{theorem}
+Algorithm 11 guarantees no deadlock.
+\end{theorem}
+
+\begin{proof}
+Immediate from Lemmas \ref{lemma:1.p0} and \ref{lemma:1.p1}.
+\end{proof}
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(A4.14.v0, 2 points):}
@@ -9,15 +89,31 @@ Give a fast mutual exclusion algorithm using TAS variables and
 show that it is correct.
 \end{Exc}
 
+\begin{algorithm}
+\caption{TAS mutual exclusion} \label{alg:tas}
+\begin{lstlisting}
+/* Initially, locked = 0. */
+/* Entry section. */
+while (tas(locked) == 1) { /* Do nothing. */ }
+/* Critical section. */
+/* Exit section. */
+reset(locked);
+/* Remainder section. */
+\end{lstlisting}
+\end{algorithm}
+
+% TODO
+
 % ------------------------------------------------------------------------------
 
-\begin{Exc}{(L.10.9.v2, 11 points):}
 \newcommand{\last}[1]{#1.\mathit{last}}
 \newcommand{\first}[1]{#1.\mathit{first}}
 \newcommand{\VV}[1]{\langle #1 \rangle}
 \newcommand{\pos}{\mathit{pos}}
 \newcommand{\queue}{\mathit{queue}}
 \newcommand{\RMW}{\mathit{RMW}}
+
+\begin{Exc}{(L.10.9.v2, 11 points):}
 
 Consider the mutual exclusion algorithm with RMW variables
 (Algorithm 8) from the textbook. The code for every processor
@@ -44,6 +140,54 @@ range, give a detailed proof that it guarantees mutual exclusion and
 0-bounded waiting [+ no deadlock]. Moreover, prove that always
 $\first{V} \leq \last{V} \leq \first{V}+n$.
 \end{Exc}
+
+This exercise consists of filling in proofs for several lemmas from the 
+slides\footnote{Lemmas from lecture slides are distinguished from lemmas in this
+homework by appending the prime character.}:
+Lemma $166'$ (Lemma \ref{lemma:3.mutual_exclusion}) for mutual exclusion,
+and Lemma $167'$ (Lemma \ref{lemma:3.0bounded}) for 0-bounded waiting. 
+$\first{V} \leq \last{V} \leq \first{V}+n$ follows directly from Lemma $167'$.
+
+\begin{lemma} \label{lemma:3.mutual_exclusion}
+In every reachable configuration of Algorithm $8'$, there is at most one process
+$p_i$ within the $\text{critical } \cup \text{exit}$ section, and its ticket
+satisfies $\last{\pos_i} = \first{V}$.
+\end{lemma}
+
+% TODO: Proof
+
+\begin{lemma} \label{lemma:3.0bounded}
+In every reachable configuration of Algorithm $8'$, every processor $p_i$
+that is within the $\text{entry } \cup \text{critical } \cup \text{exit}$
+section has drawn (and not returned) a unique ticket $\last{\pos_i}$ in the
+interval $[\first{V}, \last{V})$, and $\last{V} - \first{V}$ equals the number
+$d$ of processors that have drawn a ticket.
+\end{lemma}
+
+% TODO: Proof
+
+\begin{theorem}
+Algorithm $8'$ guarantees mutual exclusion and 0-bounded waiting.
+\end{theorem}
+
+\begin{proof}
+See Lemmas \ref{lemma:3.mutual_exclusion} and \ref{lemma:3.0bounded} together with
+Theorems $166'$ and $167'$ in the slides.
+\end{proof}
+
+
+\begin{lemma} \label{lemma:3.Vbounds}
+In every reachable configuration of Algorithm $8'$,
+$\first{V} \leq \last{V} \leq \first{V}+n$ holds.
+\end{lemma}
+
+\begin{proof}
+It follows directly from that code that no processor ever holds more than one
+ticket. Since there are $n$ processors, Lemma \ref{lemma:3.0bounded} gives us
+both the lower bound for $\last{V}$ with $0$ drawn tickets: $\first{V} = \last{V}$;
+and the upper bound with $n$ drawn tickets: $\first{V} + n = \last{V}$.
+\end{proof}
+
 
 % ------------------------------------------------------------------------------
 
