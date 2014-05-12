@@ -150,21 +150,106 @@ $\first{V} \leq \last{V} \leq \first{V}+n$ follows directly from Lemma $167'$.
 
 \begin{lemma} \label{lemma:3.mutual_exclusion}
 In every reachable configuration of Algorithm $8'$, there is at most one process
-$p_i$ within the $\text{critical } \cup \text{exit}$ section, and its ticket
+$p_i$ within the $\text{critical } \cup \text{exit}$ section (CES), and its ticket
 satisfies $\last{\pos_i} = \first{V}$.
 \end{lemma}
 
-% TODO: Proof
+\begin{proof}
+By induction on the configuration $C_i$.
+
+In configuration $C_0$ the lemma is trivially satisfied since no process is in
+the CES.
+
+Assume that in configuration $C_{k-1}$ there is at most one process
+$p_i$ within the CES, and its ticket
+satisfies $\last{\pos_i} = \first{V}$.
+
+We now examine the step $(C_{k-1}, \phi_k, C_k)$ and distinguish between two cases: 
+\begin{enumerate}
+\item \emph{Processor $p_i$ is in the CES in $C_{k-1}$.} We must show that in $\phi_k$,
+      no $p_{j \neq i}$ enters the CES, and that if $p_i$
+      remains in the CES, $\last{\pos_i}$ and $\first{V}$ do not change.
+      \begin{enumerate}[a)]
+      \item \emph{No $p_{j \neq i}$ enters the CES.} 
+            Since a processor $p_j$ only enters the CES
+            if $\last{\pos_j} = \first{V}$ (by the code),
+            $\last{\pos_i} = \first{V}$ in $C_{k-1}$ (induction hypothesis),
+            and each processor draws a unique ticket $\last{\pos}$ (code and
+            semantics of $\RMW$), no $p_{j \neq i}$ can enter the CES in $\phi_k$.
+      \item \emph{If $p_i$ remains in the CES, $\last{\pos_i}$ and $\first{V}$ 
+            do not change.} $\last{\pos_i}$ is a local variable and thus cannot
+            be accessed by any processor other than $p_i$, and is not modified 
+            in the CES by $p_i$ itself. From the code, we see that $\first{V}$
+            is only modified in the exit section. However, since there is no
+            other processor $p_{j \neq i}$ in the CES in $C_{k-1}$
+            (induction hypothesis) and $p_i$ itself stays in the CES in $\phi_k$,
+            no processor can execute Line 6 in $\phi_k$, hence $\first{V}$
+            remains unchanged.            
+      \end{enumerate}
+\item \emph{There is no processor in the CES in $C_{k-1}$.}
+      In this case, it only remains to show that if a processor $p_i$ enters
+      the CS in $\phi_k$, $\last{\pos_i} = \first{V}$. This is trivially true,
+      since $p_i$ may only enter the the CES if $\phi_k$ reads
+      $\last{\pos_i} = \first{V}$, and neither $\last{\pos_i}$ nor $\first{V}$
+      are modified in $\phi_k$
+\end{enumerate}
+Thus it must also hold in configuration $C_k$ that there is at most one process
+$p_i$ within the $\text{critical } \cup \text{exit}$ section, and its ticket
+satisfies $\last{\pos_i} = \first{V}$
+\end{proof}
+
 
 \begin{lemma} \label{lemma:3.0bounded}
 In every reachable configuration of Algorithm $8'$, every processor $p_i$
 that is within the $\text{entry } \cup \text{critical } \cup \text{exit}$
-section has drawn (and not returned) a unique ticket $\last{\pos_i}$ in the
+section (ECES) has drawn (and not returned) a unique ticket $\last{\pos_i}$ in the
 interval $[\first{V}, \last{V})$, and $\last{V} - \first{V}$ equals the number
 $d$ of processors that have drawn a ticket.
 \end{lemma}
 
-% TODO: Proof
+\begin{proof}
+By induction on the configuration $C_i$.
+
+In configuration $C_0$ the lemma is trivially satisfied since no process is in
+the ECES and $V = \VV{0, 0}$.
+
+Assume that in configuration $C_{k-1}$ every processor $p_i$
+that is within the ECES has drawn (and not returned) a unique ticket $\last{\pos_i}$ in the
+interval $[\first{V}, \last{V})$, and $\last{V} - \first{V}$ equals the number
+$d$ of processors that have drawn a ticket.
+
+We now examine the step $(C_{k-1}, \phi_k, C_k)$. Note that a tickets is
+drawn (returned) in $phi_k$ iff $\last{V}$ ($\first{V}$) is modified in $\phi_k$.
+The ECES is entered when a ticket is drawn, and left when it is returned.
+Let the value of $\last{V}$ ($\first{V}$) in configuration $C_k$ be denoted
+$\last{V_k}$ ($\first{V_k}$).
+
+\begin{itemize}
+\item If $\phi_k$ does not modify $V$, then no processor draws or returns a ticket,
+      and no processor enters or leaves the ECES, and thus the induction hypothesis (IH)
+      trivially holds in $C_k$.
+\item If $\last{V}$ is modified in $\phi_k$ by some processor $p_i$, then $p_i$ has executed
+      Line 2 and has entered the ECES in $C_k$. Both the number of drawn tickets
+      and $\last{V}$ have increased by one in $C_k$, hence $\last{V_k} - \first{V_k} = drawn\_tickets$
+      holds. Uniqueness of $p_i$'s newly drawn ticket is given by the fact that
+      the value of $p_i$'s ticket is $\last{V_{k-1}}$ while all tickets in $C_{k-1}$
+      were in the range $[\first{V_{k-1}}, \last{V_{k-1}})$. Finally, since the ticket domain
+      is expanded by one in $\phi_k$ (and not shrunk), all tickets that were previously
+      in the ticket domain in $C_{k-1}$ are still within the ticket domain in $C_k$.
+      $p_i$'s new ticket value $\last{V_{k-1}} = \last{V_k} - 1$ is trivially within
+      the ticket domain in $C_k$.
+\item If $\first{V}$ is modified in $\phi_k$ by some processor $p_i$, then $p_i$ has executed
+      Line 6 and left the ECES in $C_k$. Both the number of drawn tickets
+      and $\last{V}$ have decreased by one in $C_k$, hence
+      $\last{V_k} - \first{V_k} = drawn\_tickets$ holds.
+      By Lemma \ref{lemma:3.mutual_exclusion}, $p_i$'s ticket equals $\first{V_{k-1}}$;
+      since $\first{V_k} = \first{V_{k-1} + 1}$ and all drawn tickets are unique
+      and within the ticket domain $[\first{V_{k-1}}, \last{V_{k-1}})$ in $C_{k-1}$ (IH),
+      all drawn tickets are still within the ticket domain $[\first{V_k}, \last{V_k})$
+      in $C_k$.
+\end{itemize}
+
+\end{proof}
 
 \begin{theorem}
 Algorithm $8'$ guarantees mutual exclusion and 0-bounded waiting.
