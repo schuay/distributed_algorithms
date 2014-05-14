@@ -8,6 +8,33 @@ consecutive segments of size $2^\ell$, $0<\ell < k$, in $R_n^{rev}$
 are order-equivalent.
 \end{Exc}
 
+\begin{lemma} \label{lemma:msb_order}
+Let $x, y$ be $k$-bit integers with non-identical $\ell$ most significant bits
+which we call $x_{MSB}, y_{MSB}$, respectively. Then the ordering relation of $x, y$ is
+completely determined by $x_{MSB}, y_{MSB}$.
+\end{lemma}
+
+\begin{proof}
+Let $i$ be the position of the highest differing bit between $x, y$, and let
+its value be denoted $x_i, y_i$. Note that
+$k - \ell \leq i < k$ since $x_{MSB}, y_{MSB}$ are non-identical. 
+Without loss of generality, assume that $x_i = 0$ and $y_i = 1$.
+
+We now construct $x', y'$ by copying the highest bits up to (and including) bit 
+$i$ from $x, y$, and clearing all remaining bits. By the properties of binary 
+arithmetic, $y' = x' + 2^i$ and therefore $x' < y'$.
+
+Assume by way of contradiction that we can now use the lower bits $0, \ldots, i - 1$
+to change the ordering relation. Construct $x''$ by copying the highest bits up
+to (and including) bit $i$ from $x'$, and setting all remaining bits. However,
+$x'' = x' + 2^i - 1 = y' - 1$ and therefore $x'' < y'$ still holds.
+\end{proof}
+
+\begin{theorem}
+All consecutive segments of size $2^\ell$, $0<\ell < k$, in $R_n^{rev}$
+are order-equivalent.
+\end{theorem}
+
 \begin{proof}
 Take any index $0 \leq s < n$, any $0 < \ell < k$, and any $0 \leq \off{i}, \off{j} < 2^\ell$ (all
 arithmetic in this proof is modulo $n$).
@@ -23,20 +50,18 @@ Notice that
 
 \begin{enumerate}[a)]
 \item adding $2^\ell$ to $i$ ($j$) does not affect the $\ell$ least significant
-      bits of $i$ ($j$), that \label{item:a}
+      bits of $i$ ($j$), and that \label{item:a}
 \item in any sequence of $2^\ell$ consecutive numbers, the $\ell$ least significant
-      bits are unique, and \label{item:b}
-\item that when the $\ell$ most significant bits of two numbers $x, y$ differ, 
-      their ordering is fixed regardless their remaining least significant bits
-      (if the most significant differing bit is $2^i$, the difference between both
-      numbers is greater than the largest difference their $i$ least significant
-      bits can produce ($2^i-1$)). \label{item:c}
+      bits are unique. \label{item:b}
 \end{enumerate}
 
 It follows from \ref{item:a} that the $\ell$ least significant bits of $i'$ ($j'$) are identical to those of
 $i$ ($j$). These in turn are the $\ell$ most significant bits in $\rev{i}, \rev{j}, \rev{i'}, \rev{j'}$,
-and it follows from \ref{item:b} and \ref{item:c} that they completely determine the ordering relation
-of all elements in segments $S, S'$.
+and it follows from \ref{item:b} and Lemma \ref{lemma:msb_order} that they 
+completely determine the ordering relation of all elements in segments $S, S'$.
+
+Since $S, S'$ are arbitrary consecutive segments, order-equivalence holds for
+any, and thus all consecutive segments.
 \end{proof}
 
 
@@ -51,20 +76,24 @@ algorithm for computing the AND of all the input bits.
 \begin{proof}
 By way of contradiction, assume that there exists an anonymous, uniform,
 synchronous algorithm that computes the logical AND over the input of
-all processors, and fix any such algorithm $A$.
+all processors such that each participating processor knows the result upon termination,
+and fix any such algorithm $A$.
 Assume that it terminates with result $1$ in $r(n)$ rounds when executed on a ring $R$ consisting
 of $n$ processors $p_0, \ldots, p_{n-1}$ with all inputs equalling $1$.
 
 We now construct a ring $R'$ by combining a segment of $n + 2r(n)$ processors with input $1$
 ($\underline{p}_i, p_i, \overline{p}_i$) with a single processor with input $0$ ($q$):
-$\underline{p}_0, \ldots, \underline{p}_{r(n) - 1},
+$R' = 
+(\underline{p}_0, \ldots, \underline{p}_{r(n) - 1},
  p_0, \ldots, p_{n-1},
  \overline{p}_0, \ldots, \overline{p}_{r(n) - 1},
- q.$
+ q)$.
+
 Consider the first $r(n)$ rounds of an execution of $A$ on the ring $R'$. Since by anonymity
 the $r(n)$-neighborhood
-of each $p_i$ in $R'$ is equivalent to the $r(n)$ neighborhood for each $p_i$ in $R$, their state
-after $r(n)$ rounds must be identical, i.e. they must have terminated with result $1$. This is however
+of each $p_i$ in $R'$ is equivalent to the $r(n)$-neighborhood for each $p_i$ in $R$, their state
+after $r(n)$ rounds must be identical (Lemma 130 from the lecture slides),
+i.e. they must have terminated with result $1$. This is however
 a contradiction, since input $0$ of node $q$ forces the output of the algorithm to $0$.
 \end{proof}
 
@@ -82,7 +111,7 @@ lower bound does not hold for synchronous algorithms.
 We will show the lower bound of $\Omega(n^2)$ messages for an anonymous, non-uniform,
 asynchronous algorithm calculating the logical AND over all binary inputs by
 constructing a highly symmetrical ring $S_n = (p_0, \ldots, p_{n-2}, q)$ and showing
-that any anonymous, non-uniform, symmetric algorithm $A$ which gains knowledge solely
+that any anonymous, non-uniform, synchronous algorithm $A$ which gains knowledge solely
 through reception of messages (i.e. not through non-reception in a specific round)
 must send at least $\Omega(n^2)$ messages.
 We assume
@@ -90,9 +119,9 @@ that at the end of the algorithm, every processor must know the overall result.
 
 The ring $S_n$ consists of a single processor $q$ with input 0 and an odd number of processors 
 $P = \{ p_0, \ldots, p_{n-2} \}, |P| = n - 1$ with input 1. Note that since $A$ is anonymous, all $p_i$
-have identical state machines. Furthermore, any k-neighborhood consisting solely
-of $p_i \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ active rounds
-(proof in the book and lecture slides).
+have identical state machines. Furthermore, any processors $p_i$ with a $k$-neighborhood consisting solely
+of $p_j \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ rounds
+in which any such $p_i$ is active (Lemma 130 from the lecture slides).
 
 \begin{lemma} \label{lemma:nrkpneighborhoods}
 For $0 \leq k < \frac{n-1}{2}$, $S_n$ has exactly $n-2k-1$ k-P-neighborhoods.
@@ -111,15 +140,21 @@ active rounds.
 
 Since we require all processors to know the final result, this implies that the
 algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$ because
-in each such round at least one k-P-neighborhood exists.
+(by Lemma \ref{lemma:nrkpneighborhoods}) for each such $r_k$ at least one k-P-neighborhood exists and we must have at least
+$\frac{n-1}{2}$ rounds for $p_{\frac{n-1}{2}}$ to learn the result.
 
-\begin{theorem}
+\begin{theorem} \label{theorem:and_lower_bound}
 Any anonymous, non-uniform, asynchronous algorithm calculating the logical AND
 must send $\Omega(n^2)$ messages.
 \end{theorem}
 
 \begin{proof}
-We've seen that there are at least $\frac{n-1}{2}$ active rounds. In round $r_k$,
+The information from processor $q$ must reach $p_{\frac{n-1}{2}}$, and thus must 
+pass either through all $p_0, \ldots, p_{\frac{n-1}{2}}$, or through all
+$p_{\frac{n-1}{2}}, \ldots, p_{n-2}$. Therefore, all $p_i$ with k-P-neighborhoods
+must transmit at least one message for all $k$, $0 \leq k < \frac{n-1}{2}$.
+
+In each such round $r_k$, by Lemma \ref{lemma:nrkpneighborhoods}
 there are $n-2k-1$ processors with identical k-P-neighborhoods, each of which
 must send a message because the information from $q$ must reach the opposing processor
 $p_{\frac{n-2}{2}}$. This results in a lower bound of:
@@ -141,15 +176,16 @@ logical AND of all binary inputs does not hold in synchronous systems.
 
 \begin{proof}
 The following algorithm $A$ for a ring of size $n$ with processors $p_0, \ldots, p_{n-1}$
-is given as a counterexample. Initially, all $p_i$ with input $0$ send $msg_0$ to their
+is given as a counterexample. 
+Initially, all $p_i$ with input $0$ send $msg_0$ to their
 left neighbor.
-In rounds $1, \ldots, n$, processors with input $1$ simply forward all received
-messages, while $p_i$ with input $0$ swallow all messages. In round $n + 1$,
+In rounds $1, \ldots, n-1$, processors with input $1$ simply forward all received
+messages, while $p_i$ with input $0$ swallow all messages. In round $n$,
 each processor terminates with result ``false'' if it has received a message, and
 result ``true'' otherwise.
 
-This algorithm elects a leader with $O(n)$ message complexity since a message
-passes each edge at most once.
+This algorithm calculates the logical AND with $O(n)$ message complexity since
+each $p_i$ sends at most one message.
 \end{proof}
 
 % ------------------------------------------------------------------------------
@@ -186,6 +222,8 @@ and a complete and rigorous correctness proof (safety and liveness).
 \end{algorithmic}
 \end{algorithm}
 
+In this example, $id_i$ denotes the processor ID of $p_i$ for all $i$, and all
+index arithmetic is modulo $n$.
 The transition relations are as follows:
 
 Variables $\in L_i$ of processor $p_i$:
@@ -229,9 +267,10 @@ Elementary transitions for each $p_i$:
       where $q'_i = q_i$ except:
       \begin{itemize}
       \item $leader'_i = id_j$
-      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{id_j\}$
+      \item $\outbuf'_i[left] = \outbuf_i[left] \cup \{term_j\}$
+      \item $\inbuf'_i[right] = \inbuf_i[right] \setminus \{term_j\}$
       \end{itemize}
-\item $\forall q_i \in Q_i: leader_i \neq null$.
+\item For all other $q_i \in Q_i$.
       Then $(q_i, \phi_i, q'_i) \in \Phi_i$,
       where $q'_i = q_i$ except:
       \begin{itemize}
@@ -240,13 +279,12 @@ Elementary transitions for each $p_i$:
 \end{itemize}
 
 The set of compound transitions $\Phi'_i$ consists of the transitive closure over all elementary
-transitions such that only a single compound transition is included for a given configuration. An
-idle transition is included as well.
+transitions such that only a single compound transition is included for a given configuration.
 
 Safety in the context of leader election algorithms means that at most one processor is in the
 elected state at any time. This particular algorithm elects the processor with the maximal ID.
 Let $p_0$ be that processor in ring $R = (p_0, \ldots, p_{n-1})$. Let $\outbuf_i$ be a shorthand for
-$\outbuf_i[\text{left}]$, and $id_i$ for $id(p_i)$.
+$\outbuf_i[\text{left}]$.
 
 \begin{theorem}
 No processor other than $p_0$ can terminate as the leader.
@@ -264,7 +302,8 @@ Liveness of a leader election algorithm implies that eventually all processors t
 at least one processor enters an elected state.
 
 \begin{lemma} \label{lemma:le-liveness}
-The message containing $id_0$ is eventually sent by each processor $p_i$ to $p_{i+1}$.
+The message containing $id_0$ is eventually sent by each processor $p_i$ to $p_{i+1}$,
+$0 \leq i < n$.
 \end{lemma}
 
 \begin{proof}
@@ -273,14 +312,11 @@ By induction on the processor position $i$.
 In the initial state, $p_0$ has sent $id_0$ to $p_1$.
 
 Assume the statement holds
-for processor $p_{i-1}$; since the execution is admissible, $id_0$ is eventually
-delivered and processed at $p_{i}$. Since $id_0$ is maximal over all IDs, it must be forwarded by $p_i$
-and is therefore sent to $p_{i+1}$.
+for processor $p_{i-1}$; then for $0 < i < n$:
 
-% TODO: Kinda weird.
-If $i = 0$, i.e. the message has completed
-the cycle and reached its sender, the statement holds trivially since it is already
-satisfied for $p_0$.
+Since the execution is admissible, $id_0$ is eventually
+delivered and processed at $p_{i}$. Since $id_0$ is maximal over all IDs, processor IDs
+are unique, and $i > 0$, it must be forwarded by $p_i$ and is therefore sent to $p_{i+1}$.
 \end{proof}
 
 \begin{theorem} \label{theorem:liveness1}
@@ -305,3 +341,24 @@ By a similar induction proof as Lemma \ref{lemma:le-liveness}, the termination m
 is eventually sent to all processors.
 \end{proof}
 
+\section{Review Feedback}
+
+Thanks to both reviewers for their constructive comments.
+
+\subsection{Review x}.
+
+A helpful review that caught most minor and major issues. I extracted a train of
+thought in exercise 1 into Lemma 1, hopefully it should be clearer this way.
+
+All changes proposed for exercise 2 were integrated.
+
+In exercise 3, I initially
+included all steps of the calculation in Theorem \ref{theorem:and_lower_bound},
+but later removed interim steps since they can be reproduced using basic arithmetic
+(basically, split the sum into 3 sums; the first and last sum are trivial, and
+the middle sum can be solved with a simple sum formula). The counter-example
+now gives an anonymous algorithm calculating the logical AND over all inputs.
+
+All changes proposed for exercise 4 were integrated.
+
+\subsection{Review y}.
