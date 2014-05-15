@@ -50,7 +50,8 @@ Notice that
 
 \begin{enumerate}[a)]
 \item adding $2^\ell$ to $i$ ($j$) does not affect the $\ell$ least significant
-      bits of $i$ ($j$), and that \label{item:a}
+      bits of $i$ ($j$) since $i$ ($j$) is an $n$-bit integer and addition is modulo $2^n$,
+      and that \label{item:a}
 \item in any sequence of $2^\ell$ consecutive numbers, the $\ell$ least significant
       bits are unique. \label{item:b}
 \end{enumerate}
@@ -345,7 +346,29 @@ is eventually sent to all processors.
 
 Thanks to both reviewers for their constructive comments.
 
-\subsection{Review x}.
+\subsection{Review 1}.
+
+This review caught the most major mistakes (leader election vs. AND, anonymity,
+asynchronous algorithms don't have rounds), but missed some details in exercise
+4's transition relations and pseudo-code. In general, it is somewhat lacking in detail;
+for instance, it would be helpful to state why you found a certain section
+confusing.
+
+A part of exercise 1 was split into a separate lemma + proof. I also added a 
+clarification about addition modulo $2^n$ in $n$-bit integers. I did not change
+the proof in exercise 2 since I believe the structure is perfectly clear.
+
+I don't agree that a proof is incomplete if intermediate steps in the sum
+calculation are not included - these are very trivial to verify. The counterexample
+has been corrected.
+
+Again, I disagree that Theorem 3 would have required an induction proof. In any case,
+much of this exercise (including Theorem 3) has been replaced by a corrected
+version that does not rely on rounds.
+
+Grade: 3-
+
+\subsection{Review 2}.
 
 A helpful review that caught most minor and major issues. I extracted a train of
 thought in exercise 1 into Lemma 1, hopefully it should be clearer this way.
@@ -361,4 +384,4 @@ now gives an anonymous algorithm calculating the logical AND over all inputs.
 
 All changes proposed for exercise 4 were integrated.
 
-\subsection{Review y}.
+Grade: 1
