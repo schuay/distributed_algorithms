@@ -34,7 +34,7 @@ If $p_0$ is in the entry section, it eventually enters the critical section.
 \end{lemma}
 
 \begin{proof}
-By contradiction. Assume $p_0$ is in the entry section in and subsequently
+By contradiction. Assume $p_0$ is in the entry section and subsequently
 never enters the CS (critical section).
 Since $p_0$ never enters the CS, it must loop in Line 6 forever, and
 the variable assignments given in Lemma \ref{lemma:1.p0loop} must hold
@@ -210,7 +210,7 @@ We now examine the step $(C_{k-1}, \phi_k, C_k)$ and distinguish between two cas
       are modified in $\phi_k$
 \end{enumerate}
 Thus it must also hold in configuration $C_k$ that there is at most one process
-$p_i$ within the $\text{critical } \cup \text{exit}$ section, and its ticket
+$p_i$ within the $\text{critical } \cup \text{ exit}$ section, and its ticket
 satisfies $\last{\pos_i} = \first{V}$
 \end{proof}
 
@@ -235,7 +235,7 @@ interval $[\first{V}, \last{V})$, and $\last{V} - \first{V}$ equals the number
 $d$ of processors that have drawn a ticket.
 
 We now examine the step $(C_{k-1}, \phi_k, C_k)$. Note that a tickets is
-drawn (returned) in $phi_k$ iff $\last{V}$ ($\first{V}$) is modified in $\phi_k$.
+drawn (returned) in $\phi_k$ iff $\last{V}$ ($\first{V}$) is modified in $\phi_k$.
 The ECES is entered when a ticket is drawn, and left when it is returned.
 Let the value of $\last{V}$ ($\first{V}$) in configuration $C_k$ be denoted
 $\last{V_k}$ ($\first{V_k}$).
@@ -312,3 +312,119 @@ the proof can be
 made to work: Prove that any such algorithm requires at least $n$
 different shared memory states.
 \end{Exc}
+
+The following proof uses a similar construction as the lower bound proof for 
+$k$-bounded waiting as in the lecture slides:
+In a system with $n$ processors and less than $n$ 
+shared memory states, fix $C$ as an initial quiescent configuration. Let
+$\tau_0$ be a $p_0$-only schedule such that $p_0$ enters the CS,
+and let $C_0 = \tau_0(C)$. Inductively, let $\tau_i, 0 < i < n$ be the $p_i$-only
+schedule which takes $p_i$ into the entry section (ES) when applied to
+$C_{i-1}$, and let $C_i = \tau_i(C_{i-1}), 0 < i < n$.
+
+\begin{definition}
+Let the property of the algorithm, that every fair execution of processors $p_0,\dots,p_i$
+visits all the possible SHM states infinitely often, be Property X.
+\end{definition}
+
+\begin{lemma} \label{lemma:p_i_only}
+The configurations $C_\ell$ reached by the schedule $\tau_0 \ldots \tau_\ell$
+in the original proof can be chosen in a way which guarantees that the SHM
+state $v_\ell$ assumed in $C_\ell$ reappears infinitely often in an infinite
+$p_\ell$-only schedule $\sigma_\ell$ starting from $C_\ell$.
+\end{lemma}
+
+\begin{proof}
+By induction.
+We first prove the lemma for $C_0$, in which $p_0$ is in the CS. Let $\sigma_0$
+be an infinite $p_0$-only schedule starting from the initial quiescent configuration
+$C$, and let $C_0^i, i \geq 0$ be the configurations of this schedule in which
+$p_0$ is in the CS. By no-lockout, there must be infinitely many such configurations;
+but since there are only finitely many memory states, by the pidgeonhole principle
+there must be an infinite subset $\Pi \subseteq \mathbb{N}$ such that 
+$\forall i, j \in \Pi: shm(C_0^i) = shm(C_0^j)$. Let $C_0$ be the first such
+configuration reached in $\sigma_0$, and let $\tau_0$ be the prefix of
+$\sigma_0$ resulting in $C_0$.
+
+Assume the lemma holds for configurations $C_0 \ldots C_{i-1}$.
+Let $\sigma_i$ be an infinite $p_i$-only schedule starting from $C_{i-1}$.
+Since $p_0$ is in the critical section, $p_i$ must remain in the ES (entry
+section). As above, by the pidgeonhole principle there must be an infinite
+set of configurations reached in $\sigma_i(C_{i-1})$ with identical SHM
+states. Let $C_i$ be the first such configuration reached in $\sigma_i$,
+and let $\tau_i$ be the prefix of $\sigma_i$ resulting in $C_i$.
+\end{proof}
+
+\begin{lemma} \label{lemma:identical_configs}
+There must exist two configurations $C_i, C_j, i < j: shm(C_i) = shm(C_j)$.
+\end{lemma}
+
+\begin{proof}
+There are $n$ configurations, but less than $n$ shared memory states; by the
+pidgeonhole principle, there must be at least two configurations with identical
+shared memory states.
+\end{proof}
+
+\begin{definition} \label{def:sigma}
+Let $\sigma$ be an infinite $p_0 \ldots p_i$-only schedule applied to $C_i$
+as defined in Lemma \ref{lemma:identical_configs}. Note that in $\sigma(C_i)$: 
+a) by no-lockout every $p_0 \ldots p_i$ enters the CS an infinite number of times,
+and b) by Property X, all shared memory states are 
+reached an infinite number of times.
+\end{definition}
+
+\begin{theorem}
+There is no no-lockout mutual exclusion algorithm with RMW variables satisfying
+Property X with less than $n$ memory states.
+\end{theorem}
+
+\begin{proof}
+By contradiction. Assume that such an algorithm $A$ exists.
+In the following, we construct an admissible execution of $A$ which violates
+no-lockout, and thus contradicts the theorem.
+
+Note that $C_i, C_j$ as defined in Lemma \ref{lemma:identical_configs}
+are $p_0 \ldots p_i$-similar: $p_0 \ldots p_i$ take no steps between
+$C_i$ and $C_j$, and $shm(C_i) = shm(C_j)$. Hence, we can apply the 
+$p_0 \ldots p_i$-only schedule $\sigma$ (Definition \ref{def:sigma})
+to $C_j$. The execution $\sigma(C_j)$ violates no-lockout since $p_{i+1} \ldots p_j$
+never enter the CS, but is not admissible. The remainder of the proof will
+focus on constructing an admissible execution $\sigma'(C_j)$ in which
+all processors take an infinite number of steps, without changing the fact that
+$p_{i+1} \ldots p_j$ never enter the CS.
+
+By Definition \ref{def:sigma}, $\sigma(C_j)$ reaches all memory states infinitely
+often, and therefore it also reaches an infinite number of states
+$C^l_k, i < k \leq j, l \geq 0: shm(C^l_k) = shm(C_k)$. At every such occurrence
+$C^l_k$ in $\sigma(C_j)$, insert a $p_k$-only schedule segment $\alpha^l_k$ which ends in
+a configuration $C'^l_k$ with identical SHM state to $C^l_k$. Lemma \ref{lemma:p_i_only}
+guarantees that such a schedule segment exists. Let the resulting schedule
+be $\sigma'$.
+
+Assume for now that $p_{i+1} \ldots p_j$ never enter the
+CS in $\sigma'(C_j)$ (we will show this in the final lemma); then we have an
+admissible schedule violating no-lockout, and therefore a contradiction.
+\end{proof}
+
+\begin{lemma}
+No processor $p_k, i < k \leq j$ enters the CS in $\sigma'(C_j)$.
+\end{lemma}
+
+\begin{proof}
+Fix an arbitrary processor $p_k, i < k \leq j$.
+We show by induction that no $\alpha^l_k$ may result in a $p_k$ entering the CS.
+
+Induction base: Assume there exists a $p_k$-only schedule $\alpha'^0_k$, which
+when applied to $C^0_k$ results in $p_k$ entering the CS. Since $p_k$
+has not taken any steps between $C_k$ and $C^0_k$, the configurations are $p_k$-similar,
+and thus $\alpha'^0_k$ can also be applied to $C_k$. However, in $C_k$, 
+$p_0$ is in the CS by construction, and by mutual exclusion $p_k$ cannot enter 
+the CS.
+
+Induction hypothesis: We assume that there is no $p_k$-only schedule leading
+$p_k$ into the critical section when applied to $C^{i-1}_k$.
+
+Induction step: Applying the same indistinguishability argument as in the induction
+base, there is no such schedule starting from $C^i_k$ since there is none 
+starting from $C^{i-1}_k$.
+\end{proof}
