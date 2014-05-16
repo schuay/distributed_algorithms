@@ -111,38 +111,83 @@ lower bound does not hold for synchronous algorithms.
 
 We will show the lower bound of $\Omega(n^2)$ messages for an anonymous, non-uniform,
 asynchronous algorithm calculating the logical AND over all binary inputs by
-constructing a highly symmetrical ring $S_n = (p_0, \ldots, p_{n-2}, q)$ and showing
+constructing a highly symmetrical ring $S_n = (p_0, \ldots, p_{n-1})$ and showing
 that any anonymous, non-uniform, synchronous algorithm $A$ which gains knowledge solely
 through reception of messages (i.e. not through non-reception in a specific round)
-must send at least $\Omega(n^2)$ messages.
-We assume
-that at the end of the algorithm, every processor must know the overall result.
+must send at least $\Omega(n^2)$ messages. In the remaining exercise, we call
+such algorithms ``ANSA algorithms''.
+We assume that at the end of the algorithm, every processor must know the overall result.
 
-The ring $S_n$ consists of a single processor $q$ with input 0 and an odd number of processors 
-$P = \{ p_0, \ldots, p_{n-2} \}, |P| = n - 1$ with input 1. Note that since $A$ is anonymous, all $p_i$
-have identical state machines. Furthermore, any processors $p_i$ with a $k$-neighborhood consisting solely
-of $p_j \in P$ (a k-P-neighborhood) exhibit identical behavior in the first $k$ rounds
-in which any such $p_i$ is active (Lemma 130 from the lecture slides).
+\begin{definition}
+The ring $S_n$ consists of $n$ processors $p_0, \ldots, p_{n-1}$ with inputs
+$x_i = 1$, such that $p_{i+1}$ is the right neighbor
+of $p_i$ for all $0 \leq i < n$ (index arithmetic is modulo $n$).
+\end{definition}
 
-\begin{lemma} \label{lemma:nrkpneighborhoods}
-For $0 \leq k < \frac{n-1}{2}$, $S_n$ has exactly $n-2k-1$ k-P-neighborhoods.
+\begin{definition}
+Active rounds on $S_n$ are defined as in the book and lecture slides, i.e.
+a round $r_k$ is active iff any processor sends a message in $r_k$.
+$r_k$ is the $k$'th active round.
+\end{definition}
+
+\begin{lemma} \label{lemma:know_it_all}
+In any ANSA algorithm $A$ on $S_n$, each processor must have knowledge of the 
+input of every processor in the ring.
 \end{lemma}
 
 \begin{proof}
-A k-P-neighborhood consists of $2k + 1$ processors. For a fixed $k$, the first
-k-P-neighborhood ranges from $p_0$ to $p_{2k}$ while the last ranges from $p_{n-2-2k}$
-to $p_{n-2}$, with a k-P-neighborhood starting at every $p_i, 0 \leq i < n - 2k - 1$.
+Fix any such algorithm $A$.
+By contradiction, assume that some processor $p_i$ terminates with result $1$
+while not knowing $x_{j \neq i}$. However, if $x_j = 0$, then $p_i$ would have to
+terminate with result $0$, a contradiction.
 \end{proof}
 
-Note that any $p_i$ at the center of a k-P-neighborhood communicates solely with
-processors $\in P$ in the first $k$ active (definition as in the book and lecture)
-rounds $r_0, \ldots, r_{k-1}$, and therefore cannot decide on a final result of $0$ within the first $k$
-active rounds.
+\begin{lemma} \label{lemma:knowledge_spread}
+In any ANSA algorithm $A$ on $S_n$, in active round $r_k$ knowledge of any processor
+$p_i$'s input $x_i$ has spread at most to processors at distance $k$ from
+$p_i$.
+\end{lemma}
 
-Since we require all processors to know the final result, this implies that the
-algorithm cannot terminate in any active round $r_k, k < \frac{n-1}{2}$ because
-(by Lemma \ref{lemma:nrkpneighborhoods}) for each such $r_k$ at least one k-P-neighborhood exists and we must have at least
-$\frac{n-1}{2}$ rounds for $p_{\frac{n-1}{2}}$ to learn the result.
+\begin{proof}
+Fix an arbitrary processor $p_i$.
+By induction on distance $k$ from $p_i$.
+
+The base case is $k = 0$, i.e. the initial state. In the initial state,
+obviously only $p_i$ itself has knowledge of $x_i$.
+
+Assume that in round $r_k$ knowledge of $x_i$ has spread at most to processors
+distance $k$ from $p_i$. Since information is gained exclusively through messages,
+a processor at distance $k$ must send a message to its neighbor at distance $k+1$
+for it to receive knowledge of $x_i$. This can happen at the earliest in the
+next active round $r_{k+1}$.
+\end{proof}
+
+\begin{lemma} \label{lemma:nr_rounds}
+Any ANSA algorithm $A$ has at least $\lfloor \frac{n}{2} \rfloor$ active rounds.
+\end{lemma}
+
+\begin{proof}
+Fix any such algorithm $A$ and an arbitrary processor $p_i$.
+
+By Lemma \ref{lemma:know_it_all}, $p_i$ must know the input of every processor
+in the ring. The maximal distance to any other processor in $S_n$ is
+$\lfloor \frac{n}{2} \rfloor$. Let $p_j$ be such a processor at maximal distance
+from $p_i$. By Lemma \ref{lemma:knowledge_spread}
+it takes at least $\lfloor \frac{n}{2} \rfloor$ active rounds for $p_i$ to receive
+knowledge of $x_j$.
+\end{proof}
+
+\begin{lemma} \label{lemma:identical_neighborhoods}
+In any ANSA algorithm $A$ on $S_n$, the state of all $p_i, 0 \leq i < n$ is
+identical in every round.
+\end{lemma}
+
+\begin{proof}
+Fix any such $A$; since $A$ is anonymous and all processors have the same input,
+they have identical $k$-neighborhoods for all $k$. By Lemma 130 from the lecture
+slides, any pair of processors with identical $k$-neighborhoods are in the
+same state in rounds $0, \ldots, r_k$.
+\end{proof}
 
 \begin{theorem} \label{theorem:and_lower_bound}
 Any anonymous, non-uniform, asynchronous algorithm calculating the logical AND
@@ -150,22 +195,16 @@ must send $\Omega(n^2)$ messages.
 \end{theorem}
 
 \begin{proof}
-The information from processor $q$ must reach $p_{\frac{n-1}{2}}$, and thus must 
-pass either through all $p_0, \ldots, p_{\frac{n-1}{2}}$, or through all
-$p_{\frac{n-1}{2}}, \ldots, p_{n-2}$. Therefore, all $p_i$ with k-P-neighborhoods
-must transmit at least one message for all $k$, $0 \leq k < \frac{n-1}{2}$.
+Fix any ANSA algorithm $A$.
 
-In each such round $r_k$, by Lemma \ref{lemma:nrkpneighborhoods}
-there are $n-2k-1$ processors with identical k-P-neighborhoods, each of which
-must send a message because the information from $q$ must reach the opposing processor
-$p_{\frac{n-2}{2}}$. This results in a lower bound of:
+By Lemma \ref{lemma:nr_rounds}, $A$ must have at least $\lfloor \frac{n}{2} \rfloor$
+active rounds. Since in each of these active rounds $r_k$ the state of all
+$p_i \in S_n$ is identical (Lemma \ref{lemma:identical_neighborhoods}),
+each $p_i$ sends a message in every active around, resulting in at least
+$n \cdot \lfloor \frac{n}{2} \rfloor = \Omega(n^2)$ messages.
 
-\begin{align}
-\sum_{k = 0}^{\frac{n-1}{2}} (n-2k-1) = \frac{(n-1)(n+1)}{4} = \Omega(n^2)
-\end{align}
-
-messages when executing $A$ on $S_n$. Since lock-step synchronous execution
-is a special case of asynchronous execution, the lower bounds holds for
+Lock-step synchronous execution
+is a special case of asynchronous execution, hence the lower bound holds for
 any asynchronous algorithm.
 \end{proof}
 
@@ -176,7 +215,7 @@ logical AND of all binary inputs does not hold in synchronous systems.
 \end{theorem}
 
 \begin{proof}
-The following algorithm $A$ for a ring of size $n$ with processors $p_0, \ldots, p_{n-1}$
+The following algorithm $A$ for a ring of size $n$ with processors $p_i, 0 \leq i < n$
 is given as a counterexample. 
 Initially, all $p_i$ with input $0$ send $msg_0$ to their
 left neighbor.
@@ -229,7 +268,7 @@ The transition relations are as follows:
 
 Variables $\in L_i$ of processor $p_i$:
 \begin{itemize}
-\item $leader_i[\cdot]$: a node ID or null
+\item $leader_i$: a node ID or null
 \end{itemize}
 
 Initial state for all $i$:
@@ -288,15 +327,15 @@ Let $p_0$ be that processor in ring $R = (p_0, \ldots, p_{n-1})$. Let $\outbuf_i
 $\outbuf_i[\text{left}]$.
 
 \begin{theorem}
-No processor other than $p_0$ can terminate as the leader.
+No processor other than $p_0$ can ever enter an elected state.
 \end{theorem}
 
 \begin{proof}
-Observe that in order to terminate as the leader, a processor $p_i$ must receive its own message
+Observe that in order to enter an elected state, a processor $p_i$ must receive its own message
 $id_i$, and that (since the message originated at $p_i$ itself and messages are sent only to the left)
 this message must have traversed the entire ring. It follows from the code that the processor with
 the maximal id $p_0$ will never forward a message $id_i < id_0$; therefore no $p_i, i \neq 0$ can
-terminate as the leader.
+enter an elected state.
 \end{proof}
 
 Liveness of a leader election algorithm implies that eventually all processors terminate, and
@@ -318,6 +357,11 @@ for processor $p_{i-1}$; then for $0 < i < n$:
 Since the execution is admissible, $id_0$ is eventually
 delivered and processed at $p_{i}$. Since $id_0$ is maximal over all IDs, processor IDs
 are unique, and $i > 0$, it must be forwarded by $p_i$ and is therefore sent to $p_{i+1}$.
+
+It remains to show that no processor $p_{i \neq 0}$ terminates before it has 
+forwarded $id_0$; by the code, such processors terminate only on receiving
+the termination message. However, this message is only generated by $p_0$
+once it enters an elected state, i.e. when $id_0$ has traversed the entire ring.
 \end{proof}
 
 \begin{theorem} \label{theorem:liveness1}
@@ -349,8 +393,9 @@ Thanks to both reviewers for their constructive comments.
 \subsection{Review 1}.
 
 This review caught the most major mistakes (leader election vs. AND, anonymity,
-asynchronous algorithms don't have rounds), but missed some details in exercise
-4's transition relations and pseudo-code. In general, it is somewhat lacking in detail;
+asynchronous algorithms don't have rounds), but missed details in exercise
+4's transition relations and pseudo-code as well as the incorrect argument of exercise 3.
+In general, it is somewhat lacking in detail;
 for instance, it would be helpful to state why you found a certain section
 confusing.
 
@@ -359,29 +404,28 @@ clarification about addition modulo $2^n$ in $n$-bit integers. I did not change
 the proof in exercise 2 since I believe the structure is perfectly clear.
 
 I don't agree that a proof is incomplete if intermediate steps in the sum
-calculation are not included - these are very trivial to verify. The counterexample
-has been corrected.
+calculation are not included - these are very trivial to verify. In any case,
+the proof has been rewritten since I found out that my initial idea
+just doesn't work. The counterexample has also been corrected.
 
 Again, I disagree that Theorem 3 would have required an induction proof. In any case,
 much of this exercise (including Theorem 3) has been replaced by a corrected
 version that does not rely on rounds.
 
-Grade: 3-
+Grade: 3
 
 \subsection{Review 2}.
 
-A helpful review that caught most minor and major issues. I extracted a train of
+A helpful review that caught most minor and major issues, but missed the incorrect 
+argument of exercise 3. I extracted a train of
 thought in exercise 1 into Lemma 1, hopefully it should be clearer this way.
 
 All changes proposed for exercise 2 were integrated.
 
-In exercise 3, I initially
-included all steps of the calculation in Theorem \ref{theorem:and_lower_bound},
-but later removed interim steps since they can be reproduced using basic arithmetic
-(basically, split the sum into 3 sums; the first and last sum are trivial, and
-the middle sum can be solved with a simple sum formula). The counter-example
-now gives an anonymous algorithm calculating the logical AND over all inputs.
+In exercise 3, the counter-example
+now gives an anonymous algorithm calculating the logical AND over all inputs,
+and the main proof has been rewritten.
 
 All changes proposed for exercise 4 were integrated.
 
-Grade: 1
+Grade: 1-
