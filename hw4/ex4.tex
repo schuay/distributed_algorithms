@@ -1,0 +1,75 @@
+\begin{Exc}{(A5.16.v0, 5 points):}
+Consider an alternative validity condition for binary consensus: There must
+be at least one admissible execution with decision value 0, and there
+must be at least one admissible execution with decision value 1.
+Show that there is no wait-free algorithm for this modified consensus
+problem in single-writer shared memory asynchronous systems.
+
+\normalfont
+Hint: Modify the proof of the existence of a bivalent initial
+configuration for ordinary consensus in the textbook.
+\end{Exc}
+\begin{Exc}{(L6.1.v0, 4 points):}
+It is known that one can solve synchronous consensus
+in the presence of $f=1$ Byzantine faulty processors
+in a fully connected system of $n=4$ processors. Using an easy
+impossibility proof, show that this is no longer possible when
+two processors cannot communicate directly with each other.
+
+\normalfont
+Try find a topology
+consisting of correct processors only, which appears,
+viewed from the local perspective of every processor, like
+a 4-processor system with at most 1 Byzantine one where one
+link is missing.
+\end{Exc}
+\begin{Exc}{(S.5.4.v0, 7 points):}
+Consider a lockstep synchronous system, where processors never fail but
+messages can be lost arbitrarily. Prove that it is impossible to solve
+binary consensus with the alternative validity property
+\begin{itemize}
+\item If all processors start with the same
+input value, then every processor~$p_i$ computes
+\begin{itemize}
+%\itemsep-2pt
+\item $y_i=1$ if $\forall j: x_j=1$ and no message got
+lost in the entire execution,
+\item $y_i=0$ if $\forall j: x_j=0$,
+\end{itemize}
+\end{itemize}
+in a system of $n=2$ processors. Does this impossibility also
+hold for the following variants of consensus:
+\begin{enumerate}
+\item[(a)] Ordinary consensus, i.e., agreement, termination and
+the standard validity property from the textbook?
+\item[(b)] Consensus with unanimous termination, i.e., agreement and
+validity from the textbook, and the requirement that
+\begin{itemize}
+\item if some processor decides, all processors eventually decide, plus
+\item if no message is lost, all processors eventually decide?
+\end{itemize}
+\end{enumerate}
+
+\normalfont
+Hint: Start out from a failure-free execution where $x_0=x_1=1$.
+Show that you can gradually drop all messages without
+changing the decision value. Remember that any processor's
+decision is irreversible.
+\end{Exc}
+\begin{Exc}{(S.5.14.v0, 6 points):}
+Consider synchronous consensus with at most $f$ crash failures in not
+fully connected communication graphs $G$.
+\begin{enumerate}
+\item[(1)] Using a partitioning argument, prove that there is no solution for this problem if $G$
+is not $f+1$-connected.
+\item[(2)] Extend the proof of the termination time lower bound of $f+1$ rounds
+for fully connected communication graphs: Prove that every algorithm ${\cal A}$
+(that may know $G$) for $n\geq f+2$ processors needs at least $f+Radius(G)$ rounds
+for termination.
+
+Research problem (optional): You may win extra points by either improving this
+bound (I conjecture that the actual bound is $f+Diam(G)$) or else
+by giving an algorithm and a proof that it indeed terminates in
+$f+Radius(G)$.
+\end{enumerate}
+\end{Exc}
