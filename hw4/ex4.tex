@@ -107,3 +107,24 @@ by giving an algorithm and a proof that it indeed terminates in
 $f+Radius(G)$.
 \end{enumerate}
 \end{Exc}
+
+\begin{theorem}
+There is no algorithm that can solve synchronous consensus with at most $f$
+crash failures in a system $G$ that is less than $f+1$ connected.
+\end{theorem}
+
+\begin{proof}
+Fix any system $G$ that is less than $f+1$ connected and any synchronous consensus
+algorithm $A$. Divide $G$ into two components $G_0, G_1$ connected by at most $f$
+edges (such a division must exist since $G$ is at most $f$-connected), and let
+$E$ be the set of these edges.
+
+Consider an execution of $A$ on this system in which all processors $\in G_0$
+have input $0$, all processors $\in G_1$ have input one, and the set of processors
+$p_{faulty} = G_0 \cap E$ fail in the initial round, i.e. they never send
+a message. Note that this execution is admissible, since $|p_{faulty}| \leq f$.
+
+The components $G_0$ and $G_1$ are thus completely isolated and may be seen as
+separate systems. By validity, system $G_0$ must decide $0$ while system $G_1$
+must decide $1$, contradicting agreement in the system $G$.
+\end{proof}
