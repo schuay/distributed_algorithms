@@ -16,6 +16,48 @@ impossibility proof, show that this is no longer possible when
 two processors cannot communicate directly with each other.
 \end{Exc}
 
+\begin{proof}
+Consider a graph $G$ (Figure \ref{fig:g}) with nodes $\{p_0, p_1, p_2, p_3\}$, in which
+node $p_0$ has no direct connection to node $p_3$. Assume that an algorithm $A$
+exists (s.t. node $p_i$ locally executes algorithm $A_i$ for all $i$)
+that solves synchronous consensus with at most one Byzantine processor in system $G$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\textwidth]{fig_g}
+\caption{The graph $G$. Nodes $p_0$ and $p_3$ are not connected.} \label{fig:g}
+\end{figure}
+
+Graph $G'$ (Figure \ref{fig:gprime}) is constructed in a way that is locally
+indistinguishable from $G$ for each node. For all $i$, let nodes $p_i, p'_i$ execute $A_i$,
+and let the input of nodes $\{p_0, p_1, p_2, p_3\}$ equal $0$ while the input of 
+$\{p_0', p_1', p_2', p_3'\}$ equals $1$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\textwidth]{fig_gprime}
+\caption{The graph $G'$, locally indistinguishable from $G$.} \label{fig:gprime}
+\end{figure}
+
+Observe first the local subsystem $G'_0$ of $G'$ consisting of nodes $\{p_0, p_1, p_3\}$
+plus the remaining edges to $\{p_2, p_2'\}$. This system equivalent to $G$ in which
+node $p_2$ is faulty. By definition, $A$ can tolerate one Byzantine processor,
+and by validity, all correct processors $\{p_0, p_1, p_3\}$ must decide $0$.
+
+Similarly, the local subsystem $G'_1$ consisting of nodes $\{p_1', p_2', p_3'\}$
+plus the remaining edges to $\{p_0, p_0'\}$ is equivalent to $G$ in which node
+$p_0$ is faulty. Argumenting as above, nodes $\{p_1', p_2', p_3'\}$ must decide $1$.
+
+Finally, observe the subsystem $G'_?$ consisting of nodes $\{p_0, p_2', p_3'\}$
+plus the remaining edges to $\{p_1, p_1'\}$. Again, $G'_?$ is locally equivalent
+to $G$ in which node $p_1$ is faulty. By agreement, all correct nodes must decide
+$0$, or all correct processors must decide $1$.
+However, we have previously established that processor $p_0$ decides $0$,
+and processor $p_2$ decides $1$, a contradiction.
+
+Therefore no such algorithm $A$ can exist.
+\end{proof}
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(S.5.4.v0, 7 points):}
