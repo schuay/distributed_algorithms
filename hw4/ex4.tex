@@ -4,25 +4,20 @@ be at least one admissible execution with decision value 0, and there
 must be at least one admissible execution with decision value 1.
 Show that there is no wait-free algorithm for this modified consensus
 problem in single-writer shared memory asynchronous systems.
-
-\normalfont
-Hint: Modify the proof of the existence of a bivalent initial
-configuration for ordinary consensus in the textbook.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(L6.1.v0, 4 points):}
 It is known that one can solve synchronous consensus
 in the presence of $f=1$ Byzantine faulty processors
 in a fully connected system of $n=4$ processors. Using an easy
 impossibility proof, show that this is no longer possible when
 two processors cannot communicate directly with each other.
-
-\normalfont
-Try find a topology
-consisting of correct processors only, which appears,
-viewed from the local perspective of every processor, like
-a 4-processor system with at most 1 Byzantine one where one
-link is missing.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(S.5.4.v0, 7 points):}
 Consider a lockstep synchronous system, where processors never fail but
 messages can be lost arbitrarily. Prove that it is impossible to solve
@@ -49,13 +44,10 @@ validity from the textbook, and the requirement that
 \item if no message is lost, all processors eventually decide?
 \end{itemize}
 \end{enumerate}
-
-\normalfont
-Hint: Start out from a failure-free execution where $x_0=x_1=1$.
-Show that you can gradually drop all messages without
-changing the decision value. Remember that any processor's
-decision is irreversible.
 \end{Exc}
+
+% ------------------------------------------------------------------------------
+
 \begin{Exc}{(S.5.14.v0, 6 points):}
 Consider synchronous consensus with at most $f$ crash failures in not
 fully connected communication graphs $G$.
