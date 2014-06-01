@@ -6,6 +6,8 @@ Show that there is no wait-free algorithm for this modified consensus
 problem in single-writer shared memory asynchronous systems.
 \end{Exc}
 
+% TODO
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(L6.1.v0, 4 points):}
@@ -15,6 +17,11 @@ in a fully connected system of $n=4$ processors. Using an easy
 impossibility proof, show that this is no longer possible when
 two processors cannot communicate directly with each other.
 \end{Exc}
+
+\begin{theorem}
+There is no algorithm that can solve synchronous consensus with $1$ Byzantine
+processor in a system of $4$ processors which are not fully connected.
+\end{theorem}
 
 \begin{proof}
 Consider a graph $G$ (Figure \ref{fig:g}) with nodes $\{p_0, p_1, p_2, p_3\}$, in which
@@ -88,6 +95,8 @@ validity from the textbook, and the requirement that
 \end{enumerate}
 \end{Exc}
 
+% TODO
+
 % ------------------------------------------------------------------------------
 
 \begin{Exc}{(S.5.14.v0, 6 points):}
@@ -127,4 +136,109 @@ a message. Note that this execution is admissible, since $|p_{faulty}| \leq f$.
 The components $G_0$ and $G_1$ are thus completely isolated and may be seen as
 separate systems. By validity, system $G_0$ must decide $0$ while system $G_1$
 must decide $1$, contradicting agreement in the system $G$.
+\end{proof}
+
+For the lower bound proof, fix any algorithm $A$ solving synchronous consensus
+while tolerating up to $f$ crash failures. $A$ is applied in a system $G$ of
+$n \geq f+2$ processors that is at least $f+1$ connected.
+
+\begin{comment}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\textwidth]{fig_gconstruction}
+\caption{Example instantiations of graph $G^c_d$.} \label{fig:gconstruction}
+\end{figure}
+
+\begin{definition}
+The graph $G^c_d$ (Figure \ref{fig:gconstruction}) is $c$ connected and
+has diameter $d$. It is constructed inductively from regular $c+1$ sided polygons
+by merging two neighboring vertices until the desired diameter is reached.
+\end{definition}
+\end{comment}
+
+\begin{lemma}
+For each $k, 0 \leq k < f$, there is a $k$-round execution of $A$ that ends in
+a bivalent configuration.
+\end{lemma}
+
+\begin{proof}
+Equivalent to proof for Lemma 219'\footnote{Lemmas from the slides are
+distinguished by appending the `prime' character to the lemma number.} 
+in the lecture slides.
+\end{proof}
+
+\begin{lemma} \label{lemma:indist_dist}
+For execution $\alpha$ ending after round $r$ in a system $G$: the failure-free
+extension $\alpha'$ and the the extension $\alpha''$ in which
+processor $p_i$ fails is indistinguishable to processors at distance $\geq k$ from
+$p_i$ until round $r+k$.
+\end{lemma}
+
+\begin{proof}
+By induction on the distance $k$ from $p_i$. Let $P_k$ denote the set of
+all processors at distance $k$ from $p_i$, and $P_{>k}$ the set of all
+processors at a distance greater than $k$ from $p_i$.
+
+Induction base: By the definition of our model, the only difference 
+between $\alpha'$ and $\alpha''$ in round $r+1$ is that $p_i$ potentially fails
+to deliver messages to a subset of its neighbors $P_1$, and thus $\alpha'$ and $\alpha''$
+are locally indistinguishable for all processors in $P_{>1}$.
+
+Induction step: Assume that in round $r+k-1$, $\alpha'$ and $\alpha''$ are
+indistinguishable to all processors in $P_{>k-1}$. 
+All neighbors of processors $P_{>k+1}$ have at least distance $\geq k$
+from $p_i$. Hence in round $r+k-1$, each $p_j \in P_{>k+1}$ receives messages
+only from processors which cannot distinguish between $\alpha'$ and $\alpha''$.
+Therefore each $p_j$ also cannot distinguish between $\alpha'$ and $\alpha''$.
+\end{proof}
+
+
+\begin{lemma}
+If $\alpha_{f-1}$ is an $f-1$ round execution of $A$ that ends in a bivalent
+configuration $C_{f-1}$, then there is a $Radius(G)$ round extension in which
+some correct processor has not decided.
+\end{lemma}
+
+\begin{proof}
+\begin{comment}
+Problems: 
+* We can't choose which processors fail. 
+* Prove that failure of f processors does not affect fact that the critical
+  processor in the 1-round extension has > Radius(G) hops to at least one
+  correct processor.
+  
+Proof as in Lemma 223':
+Inspect extensions first. 
+If all univalent:
+* \alpha crash-free 1-valent 1 round extension
+* \beta p_i crashes, 0-valent
+* \ceta like \beta but p_i sends msg to one correct p_j
+
+in \ceta:
+p_j can't distinguish between \alpha and \ceta -> 1 or undefined
+p_{k \neq j} can't distinguish between \beta and ceta -> 0 or undefined
+
+contradiction.
+
+Finish up with k-neighborhood:
+no processor at distance k from p_i can distinguish between \alpha and \beta
+before round f+k -> cannot decide before f+k.
+\end{comment}
+Similar to Lemma $223'$.
+If there exists a 1-round extension which ends in a bivalent configuration $C_f$,
+apply this lemma to $C_f$. Otherwise, if all 1-round extensions lead to univalent
+configurations:
+
+Without loss of generality, let the failure-free 1-round extension $\beta_f$
+end in a 1-valent configuration $C^\beta_f$, and the 1-round extension $\gamma_f$ in which
+$p_i$ crashes result in a 0-valent configuration $C^\gamma_f$.
+
+By Lemma \ref{lemma:indist_dist}, the extensions $\beta'_f$ of $\beta_f$ and 
+$\gamma'_f$ of $\gamma_f$ are indistinguishable to processors at distance $k$
+from $p_i$ until round $f+k$, and by agreement no such processor can decide
+until then.
+
+By the definition of $G$, there must exist processors having at least distance
+$Radius(G)$ from $p_i$. Hence $f+Radius(G)$ is a lower bound for the number
+of rounds of $A$.
 \end{proof}
