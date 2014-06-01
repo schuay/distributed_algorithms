@@ -95,7 +95,49 @@ validity from the textbook, and the requirement that
 \end{enumerate}
 \end{Exc}
 
-% TODO
+\begin{lemma} \label{lemma:initial_univalent}
+The initial configuration in a system of two processors $p_0, p_1$ with $x_0 = x_1 = 1$
+is 1-valent.
+\end{lemma}
+
+\begin{proof}
+Fix any algorithm $A$ and any schedule $\alpha$ in which no message is lost.
+By the alternative validity (AV) condition, both processors must decide $1$
+in $\alpha$, i.e. there must exist a first 1-valent configuration $C_i$
+such that all $C_{j < i}$ are bivalent.
+
+By contradiction, assume that $i > 0$.
+Since information may be gained only by reception of a message, % TODO: Proof.
+let $m$ be this message, sent w.l.o.g. by $p_0$ to $p_1$ in the step 
+$(C_{i-1}, \phi_i, C_i)$. Since messages can be lost arbitrarily, $p_0$
+can not distinguish between an execution in which $m$ arrives, and another
+in which it is lost. Therefore, $C_{i-1}$ must already be 1-valent, a
+contradiction.
+\begin{comment}
+x0, x1 = 1; Must be some critical step s.t. a processor (wlog p_0) has decided
+1 in C_r. 
+\end{comment}
+\end{proof}
+
+\begin{theorem}
+There is no binary consensus algorithm satisfying the alternative validity (AV)
+condition for a system in which processors never crash but messages can be
+lost arbitrarily,
+\end{theorem}
+
+\begin{proof}
+By contradiction, assume such an algorithm $A$ exists.
+Let $G^{ij}$ be the two-processor system with processors
+$p_0, p_1$ such that $x_0 = i, x_1 = j$.
+
+By Lemma \ref{lemma:initial_univalent} the initial configuration of
+$G^{11}$ ($C^{11}$) is 1-valent; and by AV the initial configuration
+of $G^{00}$ ($C^{00}$) is 0-valent.
+
+Observe that $C^{00}$ is $p_0$-similar to the initial state of
+$G^{01}$ ($C^{01}$), and $p_0$ must eventually decide 0 in $C^{01}$.
+Likewise, $C^{11}$ is $p_1$-similar , $p_0$ 
+\end{proof}
 
 % ------------------------------------------------------------------------------
 
