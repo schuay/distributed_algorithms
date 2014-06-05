@@ -6,7 +6,47 @@ Show that there is no wait-free algorithm for this modified consensus
 problem in single-writer shared memory asynchronous systems.
 \end{Exc}
 
-% TODO
+The solution to this exercise is almost identical to the case of a binary consensus algorithm
+with unmodified validity. We present a modified proof for the existence of a bivalent initial
+configuration, and then apply Lemma $255'$\footnote{Lemmas from the slides are
+distinguished by appending the `prime' character to the lemma number.} directly. The modified
+validity condition is referred to as alternative validity (AV) in the remainder of this exercise.
+
+\begin{lemma}
+Every wait-free binary consensus algorithm with the AV condition has a bivalent initial
+configuration.
+\end{lemma}
+
+\begin{proof}
+By contradiction, assume all initial configurations to be univalent. By AV, there must exist
+at least one 0-valent, and at least one 1-valent initial configuration. In particular, there exist
+a 0-valent initial configuration $I_0$ and a 1-valent initial configuration $I_1$ which differ
+only in the input value of a single processor $p_i$.
+
+Let $\sigma$ be a schedule in which $p_i$ fails initially and all other processors are correct.
+Since $I_0$ is 0-valent, all correct processors must eventually decide $0$ in $\alpha_0 = \sigma(I_0)$.
+Applying the same schedule to $I_1$ results in an execution $\alpha_1 = \sigma(I_1)$ that is
+$p_j$-similar to $\alpha_0$ for all $j \neq i$, and therefore must also decide $0$. This however
+contradicts the 1-valence of $I_1$.
+\end{proof}
+
+The following lemma is identical to Lemma $255'$ from the lecture slides.
+It is independent of the validity condition and thus may be applied here without modification.
+
+\begin{lemma}
+Every bivalent configuration of a wait-free binary consensus algorithm has at least one bivalent
+successor configuration.
+\end{lemma}
+
+\begin{theorem}
+There is no wait-free algorithm for the consensus problem in single-writer shared memory
+asynchronous systems with the modified validity condition AV.
+\end{theorem}
+
+\begin{proof}
+It follows directly from the preparation lemmas that there exists an execution in which
+all configurations are bivalent, hence contradicting termination.
+\end{proof}
 
 % ------------------------------------------------------------------------------
 
@@ -245,9 +285,7 @@ a bivalent configuration.
 \end{lemma}
 
 \begin{proof}
-Equivalent to proof for Lemma 219'\footnote{Lemmas from the slides are
-distinguished by appending the `prime' character to the lemma number.} 
-in the lecture slides.
+Equivalent to proof for Lemma 219' in the lecture slides.
 \end{proof}
 
 \begin{lemma} \label{lemma:indist_dist}
