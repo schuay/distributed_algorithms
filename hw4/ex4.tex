@@ -174,9 +174,10 @@ By Lemma \ref{lemma:initial_univalent} the initial configuration of
 $G^{11}$ ($C^{11}$) is 1-valent; and by AV the initial configuration
 of $G^{00}$ ($C^{00}$) is 0-valent.
 
-Observe that $C^{00}$ is $p_0$-similar to the initial state of
-$G^{01}$ ($C^{01}$), and $p_0$ must eventually decide 0 in $C^{01}$.
-Likewise, $C^{11}$ is $p_1$-similar , $p_0$ 
+Consider a system $G^{01}$ with initial state $C^{01}$.
+Observe that $C^{00}$ is $p_0$-similar to $C^{01}$, $p_0$ must eventually decide 0.
+Likewise, $C^{11}$ is $p_1$-similar to $C^{01}$; hence $p_1$ must eventually
+decide 1, contradicting agreement.
 \end{proof}
 
 \begin{theorem}
@@ -289,28 +290,28 @@ Equivalent to proof for Lemma 219' in the lecture slides.
 \end{proof}
 
 \begin{lemma} \label{lemma:indist_dist}
-For execution $\alpha$ ending after round $r$ in a system $G$: the failure-free
-extension $\alpha'$ and the the extension $\alpha''$ in which
-processor $p_i$ fails is indistinguishable to processors at distance $\geq k$ from
-$p_i$ until round $r+k$.
+For any execution $\alpha$ ending after round $r$ in a system $G$: the failure-free
+extension $\alpha'$ and the the extension $\alpha''$ in which $p_i$ fails in round $r+1$,
+is indistinguishable to processors at distance $\geq k$ from $p_i$ until round $r+k$.
 \end{lemma}
 
 \begin{proof}
-By induction on the distance $k$ from $p_i$. Let $P_k$ denote the set of
-all processors at distance $k$ from $p_i$, and $P_{>k}$ the set of all
-processors at a distance greater than $k$ from $p_i$.
+By induction on the distance $k$ from $p_i$. Let $P_k$, $P_{>k}$, and $P_{\geq k}$ denote,
+respectively, the set of all processors at distance equal to, greater than, and
+greater or equal to $k$ from $p_i$.
 
 Induction base: By the definition of our model, the only difference 
 between $\alpha'$ and $\alpha''$ in round $r+1$ is that $p_i$ potentially fails
 to deliver messages to a subset of its neighbors $P_1$, and thus $\alpha'$ and $\alpha''$
 are locally indistinguishable for all processors in $P_{>1}$.
 
-Induction step: Assume that in round $r+k-1$, $\alpha'$ and $\alpha''$ are
-indistinguishable to all processors in $P_{>k-1}$. 
-All neighbors of processors $P_{>k+1}$ have at least distance $\geq k$
-from $p_i$. Hence in round $r+k-1$, each $p_j \in P_{>k+1}$ receives messages
-only from processors which cannot distinguish between $\alpha'$ and $\alpha''$.
-Therefore each $p_j$ also cannot distinguish between $\alpha'$ and $\alpha''$.
+Induction step: Assume that until round $r+k-1$, $\alpha'$ and $\alpha''$ are
+indistinguishable to all processors in $P_{\geq k-1}$. In round $r+k-1$, processors
+$P_{>k-1}$ receive messages only from processors in $P_{\geq k-1}$. These messages
+originated in the computation step of round $r+k-2$, in which processors in $P_{\geq k-1}$
+could not distinguish between $\alpha'$ and $\alpha''$ by assumption.
+Therefore, processors in $P_{>k-1} = P_{\geq k}$ cannot distinguish between
+$\alpha'$ and $\alpha''$ at least until round $r+k$.
 \end{proof}
 
 
