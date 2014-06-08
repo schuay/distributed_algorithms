@@ -2,11 +2,18 @@
 Prove that Algorithm 11 in the textbook [AW04] guarantees no deadlock.
 \end{Exc}
 
+\begin{definition}
+A processor is said to be \emph{within} lines $x$ and $y$ if it has already 
+executed line $x$, but not line $y$. A processor \emph{has reached} line $x$,
+it has already executed line $x-1$, but not line $x$.
+\end{definition}
+
+
 We consider the two cases in which $p_0$, respectively, $p_1$
 is in the entry section.
 
 \begin{lemma} \label{lemma:1.p0loop}
-If $p_0$ loops in Line 6, \lstinline|Want[0] = 1| and \lstinline|Want[1] = 1|.
+Every time $p_0$ loops in Line 6, \lstinline|Want[0] = 1| and \lstinline|Want[1] = 1|.
 \end{lemma}
 
 \begin{proof}
@@ -14,7 +21,7 @@ Obvious from the code.
 \end{proof}
 
 \begin{lemma} \label{lemma:1.want1}
-If \lstinline|Want[1] = 1|, $p_1$ is in lines 5-8 or in line 1.
+If \lstinline|Want[1] = 1|, $p_1$ is within lines 3-8 or has reached line 1.
 \end{lemma}
 
 \begin{proof}
@@ -22,7 +29,7 @@ Obvious from the code.
 \end{proof}
 
 \begin{lemma} \label{lemma:1.want0}
-If \lstinline|Want[0] = 1|, $p_0$ is in lines 6-8.
+If \lstinline|Want[0] = 1|, $p_0$ is within lines 3-8.
 \end{lemma}
 
 \begin{proof}
@@ -39,40 +46,38 @@ never enters the CS (critical section).
 Since $p_0$ never enters the CS, it must loop in Line 6 forever, and
 the variable assignments given in Lemma \ref{lemma:1.p0loop} must hold
 whenever $p_0$ loops. By Lemma \ref{lemma:1.want1} and since 
-\lstinline|Want[1] = 1|, $p_1$ can only be in
+\lstinline|Want[1] = 1|, $p_1$ can only:
 
 \begin{itemize}
-\item Line 1, 5. In this case, \lstinline|Want[1]| is immediately set to 0 and $p_1$
+\item reach Lines 1 and 5. In this case, \lstinline|Want[1]| is set to 0 and $p_1$
       then loops in Line 2 until \lstinline|Want[0] = 0|. By Lemma \ref{lemma:1.want0},
-      we know that this occurs only once $p_0$ passes Line 8, therefore
-      it is ensured that $p_0$ observes \lstinline|Want[1] = 0| in Line 6 and
-      enters the critical section.
-\item Lines 6-8. Since no process may remain in the CS forever, \lstinline|Want[1]|
+      we know that this occurs only once $p_0$ passes Line 8, which never 
+      happens by assumption. Thus, $p_1$ is stick in Line 2, and it is ensured 
+      that $p_0$ eventually observes \lstinline|Want[1] = 0| in Line 6.
+\item be within Lines 5-8. Since no process may remain in the CS forever, \lstinline|Want[1]|
       is eventually set to 0 in Line 8. If it terminates in the remainder section,
-      then $p_0$ trivially observes \lstinline|Want[1] = 0|. Otherwise, execution
+      $p_0$ eventually observes \lstinline|Want[1] = 0|. Otherwise, execution
       jumps to Line 1, in which case we may apply the argument of the previous point.      
 \end{itemize}
 
-Both cases lead to a contradiction, therefore $p_0$ eventually enters the critical
-section.
+Both cases lead to $p_0$ entering the CS and hence a contradiction.
 \end{proof}
 
 \begin{lemma} \label{lemma:1.p1}
-If $p_1$ is in the entry section, a processor eventually enters the critical section.
+If $p_1$ is perpetually in the entry section, a processor eventually enters the 
+critical section.
 \end{lemma}
 
 \begin{proof}
 Assume $p_1$ is in the entry section and observe that it
 is prevented from entering the critical section only if \lstinline|Want[0] = 1|
 whenever it is read in Line 2 and Line 5. In this case $p_0$ must be within Lines
-6-8 (Lemma \ref{lemma:1.want0}). If $p_0$ is currently in Line 6, applying Lemma
+3-8 (Lemma \ref{lemma:1.want0}). If $p_0$ is currently in Line 6, applying Lemma
 \ref{lemma:1.p0} shows that $p_0$ must enter the CS. Otherwise, $p_0$ must
 eventually execute the exit section; either $p_1$ then reads \lstinline|Want[0] = 0|
 in Line 5 and enters the CS, or $p_0$ reenters the entry section and reaches the
 CS by Lemma \ref{lemma:1.p0}.
-
 \end{proof}
-
 
 \begin{theorem}
 Algorithm 11 guarantees no deadlock.
@@ -99,15 +104,15 @@ exists.
 \begin{algorithm}
 \caption{TTAS mutual exclusion} \label{alg:ttas}
 \begin{lstlisting}[escapeinside={@}{@}]
-/* Initially, locked = 0. */
+/* Initially, Locked = 0. */
 /* Entry section. */
 while (true) {
-    while (locked) { /* Do nothing. No writes! */ }
-    if (tas(locked) == 0) { break; } @\label{line:tas}@
+    while (Locked) { /* Do nothing. No writes! */ }
+    if (tas(Locked) == 0) { break; } @\label{line:tas}@
 }
 /* Critical section. */
 /* Exit section. */
-reset(locked);
+reset(Locked);
 /* Remainder section. */
 \end{lstlisting}
 \end{algorithm}
@@ -200,7 +205,11 @@ We now examine the step $(C_{k-1}, \phi_k, C_k)$ and distinguish between two cas
             other processor $p_{j \neq i}$ in the CES in $C_{k-1}$
             (induction hypothesis) and $p_i$ itself stays in the CES in $\phi_k$,
             no processor can execute Line 6 in $\phi_k$, hence $\first{V}$
-            remains unchanged.            
+            remains unchanged.
+      \item \emph{If $p_i$ leaves the CES, no processor remains in the CES.}
+            Since we know by assumption that $p_i$ was the only processor in
+            the CES in $C_{k-1}$, once it leaves the CES in $\phi_k$ then no
+            processors remain in the CES.
       \end{enumerate}
 \item \emph{There is no processor in the CES in $C_{k-1}$.}
       In this case, it only remains to show that if a processor $p_i$ enters
@@ -259,7 +268,7 @@ $\last{V_k}$ ($\first{V_k}$).
       and $\last{V}$ have decreased by one in $C_k$, hence
       $\last{V_k} - \first{V_k} = drawn\_tickets$ holds.
       By Lemma \ref{lemma:3.mutual_exclusion}, $p_i$'s ticket equals $\first{V_{k-1}}$;
-      since $\first{V_k} = \first{V_{k-1} + 1}$ and all drawn tickets are unique
+      since $\first{V_k} = \first{V_{k-1}} + 1$ and all drawn tickets are unique
       and within the ticket domain $[\first{V_{k-1}}, \last{V_{k-1}})$ in $C_{k-1}$ (IH),
       all drawn tickets are still within the ticket domain $[\first{V_k}, \last{V_k})$
       in $C_k$.
@@ -331,7 +340,8 @@ visits all the possible SHM states infinitely often, be Property X.
 The configurations $C_\ell$ reached by the schedule $\tau_0 \ldots \tau_\ell$
 in the original proof can be chosen in a way which guarantees that the SHM
 state $v_\ell$ assumed in $C_\ell$ reappears infinitely often in an infinite
-$p_\ell$-only schedule $\sigma_\ell$ starting from $C_\ell$.
+$p_\ell$-only schedule $\sigma_\ell$ starting from $C_\ell$. Additionally,
+$\sigma_\ell, \ell > 0$ never enters the CS.
 \end{lemma}
 
 \begin{proof}
@@ -395,36 +405,18 @@ $p_{i+1} \ldots p_j$ never enter the CS.
 
 By Definition \ref{def:sigma}, $\sigma(C_j)$ reaches all memory states infinitely
 often, and therefore it also reaches an infinite number of states
-$C^l_k, i < k \leq j, l \geq 0: shm(C^l_k) = shm(C_k)$. At every such occurrence
-$C^l_k$ in $\sigma(C_j)$, insert a $p_k$-only schedule segment $\alpha^l_k$ which ends in
-a configuration $C'^l_k$ with identical SHM state to $C^l_k$. Lemma \ref{lemma:p_i_only}
-guarantees that such a schedule segment exists. Let the resulting schedule
-be $\sigma'$.
+$C^l_k, l \geq 0$ for every $i < k \leq j$ such that $shm(C^l_k) = shm(C_k)$. 
+Partition the $p_k$-only schedule $\sigma_k$ defined in Lemma \ref{lemma:p_i_only},
+into segments $\sigma_k = \tau_0 \sigma_k^0 \sigma_k^1 \ldots$, and let each 
+$\sigma_k^l$ end in a configuration with identical shared memory contents to $C_k$.
 
-Assume for now that $p_{i+1} \ldots p_j$ never enter the
-CS in $\sigma'(C_j)$ (we will show this in the final lemma); then we have an
-admissible schedule violating no-lockout, and therefore a contradiction.
-\end{proof}
+At every occurrence
+$C^l_k$ in $\sigma(C_j)$, insert the $p_k$-only schedule segment $\sigma^l_k$ which ends in
+a configuration $C'^l_k$ with identical SHM state to $C^l_k$.
+Let the resulting schedule be $\sigma'$.
 
-\begin{lemma}
-No processor $p_k, i < k \leq j$ enters the CS in $\sigma'(C_j)$.
-\end{lemma}
-
-\begin{proof}
-Fix an arbitrary processor $p_k, i < k \leq j$.
-We show by induction that no $\alpha^l_k$ may result in a $p_k$ entering the CS.
-
-Induction base: Assume there exists a $p_k$-only schedule $\alpha'^0_k$, which
-when applied to $C^0_k$ results in $p_k$ entering the CS. Since $p_k$
-has not taken any steps between $C_k$ and $C^0_k$, the configurations are $p_k$-similar,
-and thus $\alpha'^0_k$ can also be applied to $C_k$. However, in $C_k$, 
-$p_0$ is in the CS by construction, and by mutual exclusion $p_k$ cannot enter 
-the CS.
-
-Induction hypothesis: We assume that there is no $p_k$-only schedule leading
-$p_k$ into the critical section when applied to $C^{i-1}_k$.
-
-Induction step: Applying the same indistinguishability argument as in the induction
-base, there is no such schedule starting from $C^i_k$ since there is none 
-starting from $C^{i-1}_k$.
+The schedule is admissible since all processors take
+an infinite number of steps, but by Lemma \ref{lemma:p_i_only} $p_{i+1} \ldots p_j$
+never enter the CS in $\sigma'(C_j)$. No-lockout is violated,
+contradicting the assumption that algorithm $A$ exists.
 \end{proof}
