@@ -140,23 +140,33 @@ The initial configuration in a system of two processors $p_0, p_1$ with $x_0 = x
 is 1-valent.
 \end{lemma}
 
-% TODO: Proof that only reception of a message can cause a processor to enter
-% a univalent state (except if initial state is univalent). This is critical
-% to all following proofs.
-
 \begin{proof}
-Fix any algorithm $A$ and any schedule $\alpha$ in which no message is lost.
+Fix any algorithm $A$ and any execution $\alpha$ in which no message is lost.
 By the alternative validity (AV) condition, both processors must decide $1$
-in $\alpha$, i.e. there must exist a first 1-valent configuration $C_i$
-such that all $C_{j < i}$ are bivalent.
+in $\alpha$, and by termination the algorithm must eventually terminate.
 
-By contradiction, assume that $i > 0$.
-Since information may be gained only by reception of a message,
-let $m$ be this message, sent w.l.o.g. by $p_0$ to $p_1$ in the step 
-$(C_{i-1}, \phi_i, C_i)$. Since messages can be lost arbitrarily, $p_0$
-can not distinguish between an execution in which $m$ arrives, and another
-in which it is lost. Therefore, $C_{i-1}$ must already be 1-valent, a
-contradiction.
+In the following, we show by bounded induction on the round number that all 
+messages may be dropped without changing the decision of each
+processor, and 1-valence follows for the initial configuration.
+
+Induction base: Consider the final round $r$ in $\alpha$, and an arbitrary
+message $m_{i,j}$ sent from $p_i$ to $p_j$. The sender $p_i$ cannot distinguish
+between $\alpha$ and a modified execution $\alpha'$ in which $m_{i,j}$ is dropped.
+However, $p_i$ has decided irrevocably by the end of this round, and by agreement
+$p_j$ must eventually decide $1$ in $\alpha'$.
+We can thus drop an arbitrary set of messages in round $r$ without changing the
+final decision of all processors, and in particular we can drop all such messages.
+Let $\alpha_r$ be the execution identical to $\alpha$ except that all messages 
+in rounds $\geq r$ are dropped.
+
+Induction step: Assume that we can drop all messages from rounds $\geq k$ without
+changing the eventual decision of each processor, and let
+that execution be denoted $\alpha_k$. As above, consider any message $m_{i,j}$
+sent in round $k-1$,
+and note that $p_i$ cannot distinguish between $\alpha_k$ and $\alpha'_k$ in
+which $m_{i,j}$ is dropped. Thus $p_i$ must still decide $1$ in $\alpha'_k$,
+and by agreement $p_j$ is forced to an identical decision. Once more, we can 
+drop all messages in rounds $\geq {k-1}$ without changing the decision value.
 \end{proof}
 
 \begin{theorem} \label{thm:no_av_consensus}
