@@ -264,8 +264,8 @@ $\last{V_k}$ ($\first{V_k}$).
       $p_i$'s new ticket value $\last{V_{k-1}} = \last{V_k} - 1$ is trivially within
       the ticket domain in $C_k$.
 \item If $\first{V}$ is modified in $\phi_k$ by some processor $p_i$, then $p_i$ has executed
-      Line 6 and left the ECES in $C_k$. Both the number of drawn tickets
-      and $\last{V}$ have decreased by one in $C_k$, hence
+      Line 6 and left the ECES in $C_k$. The number of drawn tickets
+      have decreased by one while $\first{V}$ has increased by one in $C_k$, hence
       $\last{V_k} - \first{V_k} = drawn\_tickets$ holds.
       By Lemma \ref{lemma:3.mutual_exclusion}, $p_i$'s ticket equals $\first{V_{k-1}}$;
       since $\first{V_k} = \first{V_{k-1}} + 1$ and all drawn tickets are unique
