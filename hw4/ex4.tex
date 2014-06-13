@@ -21,7 +21,11 @@ configuration.
 By contradiction, assume all initial configurations to be univalent. By AV, there must exist
 at least one 0-valent, and at least one 1-valent initial configuration. In particular, there exist
 a 0-valent initial configuration $I_0$ and a 1-valent initial configuration $I_1$ which differ
-only in the input value of a single processor $p_i$.
+only in the input value of a single processor $p_i$\footnote{Begin at an initial configuration with all
+inputs set to 0, and w.l.o.g. let that configuration be 0-valent. Then, iterate through all possible
+initial configurations by toggling the inputs of processors one by one. Since a 1-valent initial
+configuration exists by AV, at some point we must reach a configuration that is 0-valent, but toggling
+of the input of a single processor produces a 1-valent configuration.}.
 
 Let $\sigma$ be a schedule in which $p_i$ fails initially and all other processors are correct.
 Since $I_0$ is 0-valent, all correct processors must eventually decide $0$ in $\alpha_0 = \sigma(I_0)$.
@@ -100,7 +104,7 @@ plus the remaining edges to $\{p_1, p_1'\}$. Again, $G'_?$ is locally equivalent
 to $G$ in which node $p_1$ is faulty. By agreement, all correct nodes must decide
 $0$, or all correct processors must decide $1$.
 However, we have previously established that processor $p_0$ decides $0$,
-and processor $p_2$ decides $1$, a contradiction.
+and processor $p'_2$ decides $1$, a contradiction.
 
 Therefore no such algorithm $A$ can exist.
 \end{proof}
@@ -141,7 +145,7 @@ is 1-valent.
 \end{lemma}
 
 \begin{proof}
-Fix any algorithm $A$ and any execution $\alpha$ in which no message is lost.
+Fix any algorithm $A$ and any schedule $\alpha$ in which no message is lost.
 By the alternative validity (AV) condition, both processors must decide $1$
 in $\alpha$, and by termination the algorithm must eventually terminate.
 
@@ -149,25 +153,27 @@ In the following, we show by bounded induction on the round number that all
 messages may be dropped without changing the decision of each
 processor, and 1-valence follows for the initial configuration.
 
-Induction base: Consider the final round $r$ in $\alpha$, and an arbitrary
-message $m_{i,j}$ sent from $p_i$ to $p_j$. The sender $p_i$ cannot distinguish
-between $\alpha$ and a modified execution $\alpha'$ in which $m_{i,j}$ is dropped.
-However, $p_i$ has decided irrevocably by the end of this round, and by agreement
-$p_j$ must eventually decide $1$ in $\alpha'$.
-We can thus drop an arbitrary set of messages in round $r$ without changing the
-final decision of all processors, and in particular we can drop all such messages.
-Let $\alpha_r$ be the execution identical to $\alpha$ except that all messages 
-in rounds $\geq r$ are dropped.
+\emph{Induction base}: Consider the final round $r$ in $\alpha$; since all processors have
+decided irrevocably, we can drop all messages in later rounds without changing the
+outcome of the algorithm, and call this schedule $\alpha_{r+1}$.
 
-Induction step: Assume that we can drop all messages from rounds $\geq k$ without
-changing the eventual decision of each processor, and let
-that execution be denoted $\alpha_k$. As above, consider any message $m_{i,j}$
-sent in round $k-1$,
-and note that $p_i$ cannot distinguish between $\alpha_k$ and $\alpha'_k$ in
-which $m_{i,j}$ is dropped. Thus $p_i$ must still decide $1$ in $\alpha'_k$,
-and by agreement $p_j$ is forced to an identical decision. Once more, we can 
-drop all messages in rounds $\geq {k-1}$ without changing the decision value.
+\emph{Induction step}: Assume that we can drop all messages in rounds $\geq k + 1$ without
+changing the eventual decision of each processor, and let that schedule be denoted $\alpha_{k+1}$.
+Let $\alpha'_k$ be an
+schedule identical to $\alpha_{k+1}$ except that all messages sent from $p_0$ to $p_1$ in round $k$
+are dropped (if any exist). Since
+$\alpha'_k \stackrel{p_0}{\sim} \alpha_{k+1}$, $p_0$ must still decide $1$, and agreement
+forces $p_1$ to concur eventually.
+Likewise, let $\alpha_k$ be identical to $\alpha'_k$ except that all messages from $p_1$ to $p_0$
+are dropped. By similarity ($\alpha_k \stackrel{p_1}{\sim} \alpha'_k$) and agreement, the eventual
+decision again remains unchanged; and since all messages in rounds $\geq k$ have been dropped, the
+desired schedule has been found.
 \end{proof}
+
+% QUESTION: Semantics of dropping messages in a schedule <-> execution. Schedule is probably the
+%           correct choice.
+% QUESTION: 1-valency of initial state correct? I'm not sure... What if some specific subset of
+%           messages is dropped?
 
 \begin{theorem} \label{thm:no_av_consensus}
 There is no binary consensus algorithm satisfying the alternative validity (AV)
@@ -262,14 +268,20 @@ algorithm $A$. Divide $G$ into two components $G_0, G_1$ connected by at most $f
 edges (such a division must exist since $G$ is at most $f$-connected), and let
 $E$ be the set of these edges.
 
-Consider an execution of $A$ on this system in which all processors $\in G_0$
-have input $0$, all processors $\in G_1$ have input one, and the set of processors
+Consider an execution of $A$ on this system in which the set of processors
 $p_{faulty} = G_0 \cap E$ fail in the initial round, i.e. they never send
-a message. Note that this execution is admissible, since $|p_{faulty}| \leq f$.
+a message, and call the resulting schedule $\alpha$.
+Note that $\alpha$ is admissible, since $|p_{faulty}| \leq f$.
 
-The components $G_0$ and $G_1$ are thus completely isolated and may be seen as
-separate systems. By validity, system $G_0$ must decide $0$ while system $G_1$
-must decide $1$, contradicting agreement in the system $G$.
+Let $G^{ij}$ be an assignment of input values to $G$ such that all processors in $G_0$
+have input $i$ while all in $G_1$ have input $j$.
+Note that by validity, $\alpha(G^{00})$ must decide $0$ while $\alpha(G^{11})$ must decide $1$.
+
+Consider the assignment $G^{01}$;
+the components $G_0$ and $G_1$ are completely isolated and no messages are ever exchanged between
+them. Since $\alpha(G^{01}) \stackrel{G_0}{\sim} \alpha(G^{00})$, all processors must decide
+$0$. However, $\alpha(G^{01}) \stackrel{G_1}{\sim} \alpha(G^{11})$ implies that all processors
+must decide $1$, a contradiction.
 \end{proof}
 
 For the lower bound proof, fix any algorithm $A$ solving synchronous consensus
@@ -313,7 +325,7 @@ greater or equal to $k$ from $p_i$.
 Induction base: By the definition of our model, the only difference 
 between $\alpha'$ and $\alpha''$ in round $r+1$ is that $p_i$ potentially fails
 to deliver messages to a subset of its neighbors $P_1$, and thus $\alpha'$ and $\alpha''$
-are locally indistinguishable for all processors in $P_{>1}$.
+are locally indistinguishable for all processors in $P_{>1}$ (if such processors exist).
 
 Induction step: Assume that until round $r+k-1$, $\alpha'$ and $\alpha''$ are
 indistinguishable to all processors in $P_{\geq k-1}$. In round $r+k-1$, processors
@@ -367,10 +379,12 @@ $p_i$ crashes result in a 0-valent configuration $C^\gamma_f$.
 
 By Lemma \ref{lemma:indist_dist}, the extensions $\beta'_f$ of $\beta_f$ and 
 $\gamma'_f$ of $\gamma_f$ are indistinguishable to processors at distance $k$
-from $p_i$ until round $f+k$, and by agreement no such processor can decide
+from $p_i$ until round $f+k-1$, and no such processor can decide
 until then.
 
 By the definition of $G$, there must exist processors having at least distance
-$Radius(G)$ from $p_i$. Hence $f+Radius(G)$ is a lower bound for the number
+$Radius(G)$ from $p_i$. Hence $f+Radius(G)-1$ is a lower bound for the number
 of rounds of $A$.
 \end{proof}
+
+% TODO: Argue difference of radius after faulty nodes have been removed.
