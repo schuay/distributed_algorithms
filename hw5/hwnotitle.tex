@@ -1,0 +1,56 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{comment}
+\usepackage{ifthen}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{algorithm,algorithmicx,algpseudocode}
+\usepackage[shortlabels]{enumitem}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{listings}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily,
+    keywordstyle=\color{OliveGreen},
+    commentstyle=\color{Gray},
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    showspaces=false,
+    showtabs=false,
+    numbers=left,
+}
+
+\setlist{noitemsep}
+
+%
+% Generic stuff for inclusion exercise file -- do not change
+%
+\newtheorem{exc}{Exercise}
+\newenvironment{Exc}[1]{\begin{exc}{\normalfont #1}}{\end{exc}}
+
+\newcommand{\homework}{\homeworknumber\ (Ch. \homeworkchapter)}
+
+
+% Change those definitions for the different homeworks:
+\newcommand{\homeworknumber}{5}
+\newcommand{\homeworkchapter}{6}
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\newboolean{solutions}
+\setboolean{solutions}{true}
+
+\input{firstpage.tex}
+
+\newpage
+
+\section*{Homework~\homework}
+
+\input{ex\homeworknumber.tex}
+
+\end{document}
+\endinput

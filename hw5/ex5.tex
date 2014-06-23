@@ -1,0 +1,32 @@
+\begin{Exc}{(S.6.1b.v0, 3 points):}
+Prove or disprove: The intersection cut $\vec{I} = \vec{C}_1 \cap \vec{C}_2$
+of two consistent cuts $\vec{C}_1$ and $\vec{C}_2$ in the same
+execution $\alpha$, defined as the
+component-wise minimum $I[k]=\min\{C_1[k],C_2[k]\}$ for all $k$,
+is consistent.
+\end{Exc}
+\begin{Exc}{(S.6.10.v0, 5 points):}
+Prove or disprove: The Chandy-Lamport Snapshot Algorithm 19 from
+the textbook also works correctly when more than one processor gets
+an initial indication to take a snapshot.
+
+Same question if channel states [messages in transit from inside
+the cut] are also recorded in Algorithm 19.
+\end{Exc}
+\begin{Exc}{(S.6.15.v0, 8 points):}
+Given any real $c \geq 1/2$ and message delay uncertainty $u$ in a system
+of $n>2$ processors, prove that clock
+synchronization with skew $\epsilon=c\cdot u$ requires a communication graph
+with diameter $D \leq 2c$.
+
+\normalfont
+Hint: Devise a contradiction proof, using a shifting argument for
+processors $p$, $q$ at maximum distance $D>1$: By shifting all
+processors at distance $k$ from $p$ by a certain amount in a
+shifted execution $\alpha'$, obtained from some suitable ``average''
+execution $\alpha$, $q$ can be shifted considerably both
+left and right. Use the technique introducted in the lecture
+to show that this does not allow the skew produced by any
+deterministic clock synchronization algorithm ${\cal A}$
+to attain $c\cdot u$.
+\end{Exc}
