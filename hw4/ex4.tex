@@ -205,7 +205,7 @@ lost arbitrarily,
 \begin{proof}
 The basic argument is the same as in the proof to Theorem \ref{thm:no_av_consensus},
 but without requiring Lemma \ref{lemma:initial_univalent}. Definitions of
-$G^{ij}$ are as in \ref{thm:no_av_consensus}.
+$G^{ij}$ are as in Theorem \ref{thm:no_av_consensus}.
 
 By validity, the initial configuration of
 $G^{11}$ ($C^{11}$) is 1-valent, and the initial configuration
@@ -216,25 +216,26 @@ Again, the initial state $C^{01}$ of $G^{01}$ is indistinguishable to $C^{00}$
 on $C^{01}$, contradicting agreement.
 \end{proof}
 
-\begin{theorem}
+\begin{theorem} \label{thm:no_at_consensus}
 There is no algorithm for binary consensus satisfying the alternative termination (AT)
 condition for a system in which processors never crash but messages can be
 lost arbitrarily,
 \end{theorem}
 
 \begin{proof}
+Definitions of
+$G^{ij}$ are as in Theorem \ref{thm:no_av_consensus}.
 Consider a system of two processors, and an arbitrary execution $\alpha$ in which
-no messages are lost. By AT, all processors must eventually decide. Let $i$
-be the round in which the first processor decides; w.l.o.g. let
-$p_0$ be that processor and $M$ be the set of messages received by $p_0$ in
-round $i$.
+no messages are lost. By AT, all processors must eventually decide. By the same
+argument as in Lemma \ref{lemma:initial_univalent}, all messages may be dropped
+from $\alpha$ without changing the ultimate decision and the fact that all
+processors eventually decide.
 
-Let $\alpha'$ be an execution equal to $\alpha$, except that all messages
-in rounds $> i$ are lost, and in round $i$ only messages $M$ are delivered.
-Since $\alpha'$ is indistinguishable for $p_0$ up to (and including) round $i$,
-$p_0$ must still decide irrevocably. The AT condition therefore requires $p_1$ to
-decide eventually as well --- however, $p_1$ never receives another message
-and thus cannot decide.
+Thus an execution on $G^{11}$ ($G^{00}$) in which all messages are dropped must eventually 
+decide $1$ ($0$).
+Again, the initial state $C^{01}$ of $G^{01}$ is indistinguishable to $C^{00}$
+($C^{11}$) for $p_0$ ($p_1$) and must therefore decide $0$ ($1$) in every extension
+on $C^{01}$ in which all messages are dropped, contradicting agreement.
 \end{proof}
 
 % ------------------------------------------------------------------------------
@@ -288,20 +289,6 @@ For the lower bound proof, fix any algorithm $A$ solving synchronous consensus
 while tolerating up to $f$ crash failures. $A$ is applied in a system $G$ of
 $n \geq f+2$ processors that is at least $f+1$ connected.
 
-\begin{comment}
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.5\textwidth]{fig_gconstruction}
-\caption{Example instantiations of graph $G^c_d$.} \label{fig:gconstruction}
-\end{figure}
-
-\begin{definition}
-The graph $G^c_d$ (Figure \ref{fig:gconstruction}) is $c$ connected and
-has diameter $d$. It is constructed inductively from regular $c+1$ sided polygons
-by merging two neighboring vertices until the desired diameter is reached.
-\end{definition}
-\end{comment}
-
 \begin{lemma}
 For each $k, 0 \leq k < f$, there is a $k$-round execution of $A$ that ends in
 a bivalent configuration.
@@ -336,38 +323,18 @@ Therefore, processors in $P_{>k-1} = P_{\geq k}$ cannot distinguish between
 $\alpha'$ and $\alpha''$ at least until round $r+k$.
 \end{proof}
 
+\begin{definition}
+Let $G'_\alpha$ be the graph produced by removing all processors that fail
+in execution $\alpha$ from the initial graph $G$.
+\end{definition}
 
 \begin{lemma}
 If $\alpha_{f-1}$ is an $f-1$ round execution of $A$ that ends in a bivalent
-configuration $C_{f-1}$, then there is a $Radius(G)$ round extension in which
-some correct processor has not decided.
+configuration $C_{f-1}$, then there is a $Radius(G'_{\alpha_{f-1}})$ round extension 
+in which some correct processor has not decided.
 \end{lemma}
 
 \begin{proof}
-\begin{comment}
-Problems: 
-* We can't choose which processors fail. 
-* Prove that failure of f processors does not affect fact that the critical
-  processor in the 1-round extension has > Radius(G) hops to at least one
-  correct processor.
-  
-Proof as in Lemma 223':
-Inspect extensions first. 
-If all univalent:
-* \alpha crash-free 1-valent 1 round extension
-* \beta p_i crashes, 0-valent
-* \ceta like \beta but p_i sends msg to one correct p_j
-
-in \ceta:
-p_j can't distinguish between \alpha and \ceta -> 1 or undefined
-p_{k \neq j} can't distinguish between \beta and ceta -> 0 or undefined
-
-contradiction.
-
-Finish up with k-neighborhood:
-no processor at distance k from p_i can distinguish between \alpha and \beta
-before round f+k -> cannot decide before f+k.
-\end{comment}
 Similar to Lemma $223'$.
 If there exists a 1-round extension which ends in a bivalent configuration $C_f$,
 apply this lemma to $C_f$. Otherwise, if all 1-round extensions lead to univalent
@@ -382,9 +349,21 @@ $\gamma'_f$ of $\gamma_f$ are indistinguishable to processors at distance $k$
 from $p_i$ until round $f+k-1$, and no such processor can decide
 until then.
 
-By the definition of $G$, there must exist processors having at least distance
-$Radius(G)$ from $p_i$. Hence $f+Radius(G)-1$ is a lower bound for the number
-of rounds of $A$.
+By the definition of $G'_{\alpha_{f-1}}$, there must exist processors having at 
+least distance $Radius(G'_{\alpha_{f-1}})$ from $p_i$. 
+Hence $f+Radius(G'_{\alpha_{f-1}})-1$ is a lower bound for the number
+of rounds of $A$\footnote{Note that we cannot argue based on $Radius(G)$ since
+the removal of faulty nodes potentially reduces the radius.}.
 \end{proof}
 
-% TODO: Argue difference of radius after faulty nodes have been removed.
+\section{Review Feedback}
+
+In general, a constructive and thorough review.
+
+In exercise 3, I did not alter the proof for Lemma \ref{lemma:initial_univalent},
+since similarity was already explicit; maybe you were did not notice the 
+different indices? The proof for Theorem \ref{thm:no_at_consensus} was redone.
+
+The solution to exercise 4 now argues using similar executions.
+
+Grade: 1
